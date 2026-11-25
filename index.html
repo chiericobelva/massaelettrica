@@ -13,7 +13,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <style>
   :root{
-    --bg:#000; --fg:#f1f1f1; --dim:#8a8a8a; --line:#313131; --acc:#5b63ff;
+    --bg:#000; --fg:#f1f1f1; --dim:#8a8a8a; --line:#313131; --acc:yellow;
     --font: Helvetica, "Helvetica Neue", Arial, sans-serif;   /* come newmodels.io */
     --bar: linear-gradient(0deg,#4d4d4d 0%,#0e0d00 66%,#0a0a0a 91%,#616161 100%);
     --puffy: inset 2px 2px 2px rgba(255,255,255,.4), inset -2px -2px 2px rgba(0,0,0,.4);
@@ -57,8 +57,8 @@
   .alb .cover{margin-bottom:8px}
   .alb .t{display:block;font:700 14px/1.2 var(--font)}
   .alb:hover .t{color:yellow}
-  .alb[aria-expanded="true"] .cover{outline:2px solid var(--acc);outline-offset:3px}
-  .alb[aria-expanded="true"] .t{color:var(--acc)}
+  .alb[aria-expanded="true"] .cover{outline:2px solid yellow;outline-offset:3px}
+  .alb[aria-expanded="true"] .t{color:yellow}
   .release{grid-column:1/-1;padding:4px 0 8px}
   .cover{display:block;width:100%;aspect-ratio:1;border-radius:8px;overflow:hidden;background:#111;box-shadow:var(--puffy)}
   .cover img{width:100%;height:100%;object-fit:cover;display:block}
@@ -70,10 +70,10 @@
   .row:hover{color:yellow}
   .row .n,.row .d{font-size:12px;color:var(--dim)}
   .row .p{width:48px;text-align:right}
-  li.playing .t,li.playing .p{color:var(--acc)}
+  li.playing .t,li.playing .p{color:yellow}
   .bar{height:2px;background:var(--line);display:none;cursor:pointer;margin-bottom:-1px}
   li.playing .bar{display:block}
-  .bar span{display:block;height:100%;width:0;background:var(--acc)}
+  .bar span{display:block;height:100%;width:0;background:yellow}
   .err{font-size:12px;color:#ff6b5b;padding:0 0 10px 50px;display:none}
   li.missing .err{display:block}
 
