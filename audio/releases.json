@@ -1,5 +1,24 @@
 [
   {
+    "folder": "Ghost Shuffle",
+    "type": "Single",
+    "title": "Ghost Shuffle",
+    "year": "2026",
+    "label": "Massa Elettrica",
+    "link": "https://affinita.bandcamp.com/track/ghost-shuffle",
+    "description": "",
+    "cover": "IMGghost1.png",
+    "bpm": 168,
+    "tracks": [
+      {
+        "file": "GHOST.mp3",
+        "title": "Ghost Shuffle",
+        "bpm": 168,
+        "size": 9606778
+      }
+    ]
+  },
+  {
     "folder": "Massa Elettrica",
     "type": "EP",
     "title": "Massa Elettrica",
