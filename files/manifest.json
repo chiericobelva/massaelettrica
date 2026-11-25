@@ -1,0 +1,34 @@
+[
+ {
+  "name": "flyers",
+  "date": "2026-11-25",
+  "children": []
+ },
+ {
+  "name": "press",
+  "date": "2026-11-25",
+  "children": [
+   {
+    "name": "prova",
+    "date": "2026-11-25",
+    "children": []
+   },
+   {
+    "name": "affinita-bio-en-it.pdf",
+    "date": "2026-11-25",
+    "size": 63460
+   }
+  ]
+ },
+ {
+  "name": "releases",
+  "date": "2026-11-25",
+  "children": [
+   {
+    "name": "massa-elettrica",
+    "date": "2026-11-25",
+    "children": []
+   }
+  ]
+ }
+]

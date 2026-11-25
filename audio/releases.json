@@ -1,0 +1,39 @@
+[
+  {
+    "folder": "Massa Elettrica",
+    "type": "EP",
+    "title": "Massa Elettrica",
+    "year": "2025",
+    "label": "Massa Elettrica",
+    "link": "https://affinita.bandcamp.com/album/massa-elettrica",
+    "description": "",
+    "cover": "Massa Elettrika.jpg",
+    "bpm": 160,
+    "tracks": [
+      {
+        "file": "01-METRO.mp3",
+        "title": "Metro (Solo)",
+        "bpm": 160,
+        "size": 9975418
+      },
+      {
+        "file": "02-ZIMA.mp3",
+        "title": "Zima Blue",
+        "bpm": 160,
+        "size": 9975418
+      },
+      {
+        "file": "03-DREADED.mp3",
+        "title": "Dreaded",
+        "bpm": 160,
+        "size": 9975418
+      },
+      {
+        "file": "04-DONTCOMECLOSE.mp3",
+        "title": "Don't Come Close",
+        "bpm": 90,
+        "size": 9975418
+      }
+    ]
+  }
+]

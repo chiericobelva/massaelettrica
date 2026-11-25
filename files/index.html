@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>./ — massa elettrica</title>
+<style>
+  :root{color-scheme:dark;--bg:#000;--fg:#f1f1f1;--dim:#8a8a8a;--line:#313131;--acc:#5b63ff;
+        --mono:Helvetica,"Helvetica Neue",Arial,sans-serif}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.6 var(--mono);padding:28px}
+  a{color:var(--fg);text-decoration:none}
+  a:hover{color:var(--acc)}
+  ::selection{background:var(--acc);color:var(--bg)}
+  .wrap{max-width:880px}
+  .top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;letter-spacing:.08em;text-transform:uppercase;font-size:12px;color:var(--dim);margin-bottom:28px}
+  .top a{color:var(--dim)} .top a:hover{color:var(--fg)}
+  h1{font:400 13px var(--mono);letter-spacing:.06em;margin:0 0 8px}
+  h1 a{text-decoration:underline;text-decoration-color:var(--acc);text-underline-offset:3px}
+  table{border-collapse:collapse;width:100%;margin-top:16px}
+  th{font-weight:400;text-align:left;color:var(--dim);font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:0 16px 8px 0;border-bottom:1px solid var(--line)}
+  td{padding:8px 16px 8px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  td.s,td.d,th.s,th.d{color:var(--dim);white-space:nowrap;text-align:right}
+  td.d,th.d{width:110px} td.s,th.s{width:90px}
+  .dir{color:var(--fg)}
+  .play{background:none;border:0;color:var(--acc);font:inherit;cursor:pointer;padding:0 8px 0 0}
+  tr.playing td:first-child a{color:var(--acc)}
+  audio{width:100%;margin-top:6px;display:block;height:32px}
+  .empty{color:var(--dim);padding:16px 0}
+  .err{color:#ff6b5b}
+  footer{margin-top:40px;font-size:12px;color:var(--dim);letter-spacing:.08em;text-transform:uppercase}
+  tbody tr:hover{background:#191919;color:yellow}
+  /* dentro la home (iframe): niente barra in alto */
+  .embedded body{padding:16px 20px} .embedded .top{display:none}
+  @media (max-width:600px){body{padding:18px} td.d,th.d{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a href="../">← Affinità</a>
+    <span>massa elettrica / archive</span>
+  </div>
+  <h1 id="crumbs">./</h1>
+  <table>
+    <thead><tr><th>Name</th><th class="s">Size</th><th class="d">Date</th></tr></thead>
+    <tbody id="list"><tr><td colspan="3" class="empty">loading…</td></tr></tbody>
+  </table>
+  <footer id="count"></footer>
+</div>
+
+<script>
+if (window.self !== window.top) document.documentElement.classList.add("embedded");
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const url = parts => parts.map(encodeURIComponent).join("/");
+const size = b => b >= 1e9 ? (b/1e9).toFixed(1)+" GB" : b >= 1e6 ? (b/1e6).toFixed(1)+" MB" : Math.max(1, Math.round(b/1e3))+" KB";
+const isAudio = n => /\.(mp3|m4a|ogg|wav|flac)$/i.test(n);
+const list = document.getElementById("list"), crumbs = document.getElementById("crumbs");
+
+fetch("manifest.json", {cache: "no-cache"})
+  .then(r => { if (!r.ok) throw 0; return r.json(); })
+  .then(tree => {
+    function show() {
+      const parts = decodeURIComponent(location.hash.replace(/^#\/?/, "")).split("/").filter(Boolean);
+      let node = tree, ok = true;
+      for (const p of parts) {
+        const hit = node.find(i => i.name === p && i.children);
+        if (!hit) { ok = false; break; }
+        node = hit.children;
+      }
+      if (!ok) { location.hash = "#/"; return; }
+
+      document.title = "./" + parts.join("/") + " — massa elettrica";
+      crumbs.innerHTML = ['<a href="#/">.</a>']
+        .concat(parts.map((p, i) => `<a href="#/${url(parts.slice(0, i + 1))}">${esc(p)}</a>`))
+        .join(" / ") + " /";
+
+      let rows = parts.length
+        ? `<tr><td><a class="dir" href="#/${url(parts.slice(0, -1))}">../</a></td><td class="s"></td><td class="d"></td></tr>` : "";
+      rows += node.map(i => {
+        if (i.children) {
+          return `<tr><td><a class="dir" href="#/${url(parts.concat(i.name))}">${esc(i.name)}/</a></td>
+                  <td class="s">${i.children.length} items</td><td class="d">${esc(i.date)}</td></tr>`;
+        }
+        const href = url(parts.concat(i.name));
+        const play = isAudio(i.name) ? `<button class="play" data-src="${href}" aria-label="Play">▶</button>` : "";
+        return `<tr><td>${play}<a href="${href}" target="_blank" rel="noopener">${esc(i.name)}</a></td>
+                <td class="s">${size(i.size)}</td><td class="d">${esc(i.date)}</td></tr>`;
+      }).join("");
+      list.innerHTML = rows || `<tr><td colspan="3" class="empty">empty folder</td></tr>`;
+
+      const nFiles = node.filter(i => !i.children).length, nDirs = node.length - nFiles;
+      document.getElementById("count").textContent = `${nDirs} folders · ${nFiles} files`;
+    }
+
+    // player audio dentro la riga
+    list.addEventListener("click", e => {
+      const btn = e.target.closest(".play");
+      if (!btn) return;
+      const old = document.querySelector("#list audio");
+      const sameRow = old && old.dataset.src === btn.dataset.src;
+      if (old) { old.closest("tr").classList.remove("playing"); old.remove(); }
+      document.querySelectorAll(".play").forEach(b => b.textContent = "▶");
+      if (sameRow) return;
+      const a = document.createElement("audio");
+      a.controls = true; a.autoplay = true; a.src = btn.dataset.src; a.dataset.src = btn.dataset.src;
+      btn.closest("td").appendChild(a);
+      btn.closest("tr").classList.add("playing");
+      btn.textContent = "■";
+    });
+
+    addEventListener("hashchange", show);
+    show();
+  })
+  .catch(() => {
+    list.innerHTML = `<tr><td colspan="3" class="empty err">manifest.json not found — run python3 build-manifest.py
+      (and open the site through a local server, not by double-clicking the file)</td></tr>`;
+  });
+</script>
+</body>
+</html>
