@@ -1,0 +1,19 @@
+# Ordine delle foto nella gallery: un nome di file per riga, ESATTO (maiuscole/minuscole comprese).
+# Ogni 3 righe = una pagina. Le righe che iniziano con # non contano.
+# Le foto non elencate qui finiscono in fondo, in ordine alfabetico.
+# Dopo una modifica: python build-manifest.py
+
+# --- pagina 1
+01_cdp2.jpeg
+02-annigoni.JPG
+03-ep.JPG
+
+# --- pagina 2
+annigoni-loop.mp4
+07wish.jpg
+08wish.jpg
+
+# --- pagina 3
+04-sp0.jpg
+05-press.jpg
+06-emerson.jpg

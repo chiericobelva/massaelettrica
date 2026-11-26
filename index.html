@@ -110,14 +110,17 @@
   /* ---------- DRIVE (file browser in iframe) ---------- */
   /* ---------- GALLERY: una sola fila, 3 foto alla volta (1 su telefono), freccia per le successive ---------- */
   .gal-item{display:block;flex:none;overflow:hidden;background:#111}
-  .gal-item img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.75) contrast(1.075)}   /* brightness = luminosità, contrast = contrasto (1 = originale) */
+  .gal-item img,.gal-item canvas{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.75) contrast(1.075)}   /* brightness = luminosità, contrast = contrasto (1 = originale) */
   /* foto protette: niente trascinamento, niente menu "salva" tenendo premuto su telefono */
-  .gal-item.locked img{pointer-events:none;-webkit-user-drag:none;user-select:none;-webkit-touch-callout:none}
+  .gal-item.locked img,.gal-item.locked canvas{pointer-events:none;-webkit-user-drag:none;user-select:none;-webkit-touch-callout:none}
   .strip-wrap{position:relative}
   .strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
   .strip::-webkit-scrollbar{display:none}
   .gpage{display:flex;gap:8px;flex:none;scroll-snap-align:start}   /* un gruppo di foto = larghezza della fila */
-  .strip.fit .gal-item img{object-fit:contain}                        /* telefono: foto intera nel riquadro */
+  .strip.fit .gal-item img,.strip.fit .gal-item canvas{object-fit:contain}   /* telefono: foto intera nel riquadro */
+  /* video in stile GIF: il video vero resta invisibile, si vede la tela */
+  .gal-item{position:relative}
+  .gal-item .gif-src{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
   /* frecce: pulsanti grigi a rilievo come quelli del player */
   .strip-arrow{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:56px;padding:0;background:linear-gradient(#f4f4f4,#c4c4c4 60%,#a6a6a6);color:#111;border:1px solid #000;border-radius:2px;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #6e6e6e,0 2px 6px rgba(0,0,0,.5);font:700 14px/1 var(--font);cursor:pointer}
   .strip-arrow:active{background:linear-gradient(#a6a6a6,#c4c4c4 40%,#e6e6e6);box-shadow:inset 1px 1px 0 #6e6e6e,inset -1px -1px 0 #fff}
@@ -158,19 +161,23 @@
      La fascia è nera nella metà alta e bianca nella metà bassa: il taglio cade esattamente
      a metà altezza della scritta. La scritta è sempre bianca, con un contorno nero
      (sul nero non si vede, sul bianco la disegna). */
-  /* font Anton (gratuito, licenza in fonts/OFL.txt), solo per la scritta THEORY */
-  @font-face{font-family:"Anton";src:url("fonts/anton.woff2") format("woff2");font-weight:400;font-display:swap}
+  /* font Unbounded (gratuito, licenza in fonts/OFL-unbounded.txt), solo per la scritta THEORY */
+  @font-face{font-family:"Unbounded";src:url("fonts/unbounded.woff2") format("woff2");font-weight:800;font-display:swap}
   .theory-band{--fs:clamp(56px, 13vw, 200px);   /* grandezza della scritta */
     --sy:2.6;                                     /* allungamento verticale */
-    display:grid;place-items:center;height:calc(var(--fs) * .86 * var(--sy) + 2 * var(--fs) * .4);   /* .86 = altezza maiuscole di Anton */
+    display:grid;place-items:center;height:calc(var(--fs) * .75 * var(--sy) + 2 * var(--fs) * .4);   /* .75 = altezza maiuscole di Unbounded */
     background:linear-gradient(#000 50%, var(--paper) 50%);overflow:hidden;position:relative}
   /* barra a rilievo sul taglio nero/grigio (stessa sfumatura delle barre dei titoli), dietro la scritta */
   .theory-band::before{content:"";position:absolute;left:0;right:0;top:50%;height:18px;transform:translateY(-50%);   /* 18px = spessore */
     background:var(--bar);border-top:1px solid #6a6a6a;border-bottom:1px solid #000;box-shadow:0 3px 6px rgba(0,0,0,.45)}
   /* contorno nero: applicato al contenitore, dopo l'allungamento, così ha lo stesso spessore su tutti i lati */
-  .theory-word{position:relative;z-index:1;filter:drop-shadow(1.5px 0 0 #000) drop-shadow(-1.5px 0 0 #000) drop-shadow(0 1.5px 0 #000) drop-shadow(0 -1.5px 0 #000)
-    drop-shadow(0 0 14px rgba(0,0,0,.45))}   /* alone: si vede solo sul bianco (sul nero si confonde). 14px = ampiezza, .45 = intensità */
-  .theory-band h2{margin:0;color:#fff;font:400 var(--fs)/1 "Anton", Impact, var(--font);letter-spacing:-.03em;text-transform:uppercase;   /* letter-spacing: più negativo = lettere più vicine */
+  /* THEORY solo contorno: due copie sovrapposte. Il contorno è calcolato dopo l'allungamento
+     (filtri #outline-white / #outline-black in fondo alla pagina), quindi ha lo stesso spessore su tutti i lati.
+     Copia "top": contorno bianco, solo metà alta. Copia "bot": contorno nero + alone, solo metà bassa. */
+  .theory-word{grid-area:1/1;position:relative;z-index:1}
+  .theory-word.top{filter:url(#outline-white);clip-path:inset(-200vh -200vw 50% -200vw)}
+  .theory-word.bot{filter:url(#outline-black) drop-shadow(0 0 14px rgba(0,0,0,.45));clip-path:inset(50% -200vw -200vh -200vw)}   /* alone: 14px = ampiezza, .45 = intensità */
+  .theory-band .tw{display:block;margin:0;color:#fff;font:800 var(--fs)/1 "Unbounded", var(--font);letter-spacing:-.02em;text-transform:uppercase;   /* letter-spacing: più negativo = lettere più vicine */
     text-box:trim-both cap alphabetic;   /* la riga del testo è alta esattamente quanto le maiuscole: centratura precisa */
     transform:scaleY(var(--sy))}
   /* da qui in giù la pagina è bianca */
@@ -296,7 +303,10 @@
 <!-- ================= THEORY =================
      Da qui la pagina diventa bianca: articoli, tesi, corso di produzione. -->
 <section id="theory">
-  <div class="theory-band"><div class="theory-word"><h2>Theory</h2></div></div>
+  <div class="theory-band">
+    <div class="theory-word top" aria-hidden="true"><span class="tw">Theory</span></div>
+    <div class="theory-word bot"><h2 class="tw">Theory</h2></div>
+  </div>
   <div class="theory-body"><div class="theory-inner">
 
     <!-- Ogni <details> è un ramo apribile; dentro, <div class="tree"> = livello successivo (più a destra). -->
@@ -344,6 +354,22 @@
 <footer>© 2026 massa elettrica</footer>
 
 <audio id="audio" preload="none"></audio>
+
+<!-- filtri per THEORY solo contorno: radius = spessore della linea in px -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <filter id="outline-white" x="-10%" y="-150%" width="120%" height="400%">
+    <feMorphology in="SourceAlpha" operator="dilate" radius="1.5" result="fat"/>
+    <feComposite in="fat" in2="SourceAlpha" operator="out" result="ring"/>
+    <feFlood flood-color="#fff"/>
+    <feComposite in2="ring" operator="in"/>
+  </filter>
+  <filter id="outline-black" x="-10%" y="-150%" width="120%" height="400%">
+    <feMorphology in="SourceAlpha" operator="dilate" radius="1.5" result="fat"/>
+    <feComposite in="fat" in2="SourceAlpha" operator="out" result="ring"/>
+    <feFlood flood-color="#000"/>
+    <feComposite in2="ring" operator="in"/>
+  </filter>
+</svg>
 
 <script>
 /* ---------- catalogo: generato da build-manifest.py in audio/releases.json ----------
@@ -604,6 +630,8 @@ const stripPrev = document.getElementById("stripPrev");
 const stripNext = document.getElementById("stripNext");
 // foto che non si aprono a grandezza piena e non si salvano col clic destro / tenendo premuto
 const NO_DOWNLOAD = ["02-annigoni.JPG", "06-emerson.jpg"];
+// dove tenere il centro del ritaglio per singole foto (le altre: al centro). Es. "left center" = si vede tutto il bordo sinistro
+const FOCUS = { "01_cdp2.jpeg": "left center" };
 const phone = matchMedia("(max-width:600px)");
 const perPage = () => phone.matches ? 1 : 3;     // foto visibili insieme: 3 su computer, 1 su telefono
 const GAP = 8;
@@ -611,7 +639,12 @@ let photos = [], pages = [];
 
 function photoHTML(p){
   const src = enc("img/gallery/" + p.file);
-  const img = `<img src="${src}" alt="Affinità" loading="lazy" width="${p.w}" height="${p.h}" draggable="false">`;
+  const pos = FOCUS[p.file] ? ` style="object-position:${FOCUS[p.file]}"` : "";
+  const img = p.video
+    // video: parte da solo, in loop, senza audio e senza comandi (come una GIF, ma molto più leggero)
+    // il video gira nascosto; sulla tela se ne vedono solo pochi fotogrammi al secondo (effetto GIF)
+    ? `<video class="gif-src" src="${src}" autoplay muted loop playsinline preload="auto" disablepictureinpicture aria-hidden="true"></video><canvas class="gif" width="${p.w}" height="${p.h}" aria-label="Affinità"${pos}></canvas>`
+    : `<img src="${src}" alt="Affinità" loading="lazy" width="${p.w}" height="${p.h}" draggable="false"${pos}>`;
   return NO_DOWNLOAD.includes(p.file)
     ? `<div class="gal-item locked">${img}</div>`                                   // protetta: non si apre e non si salva
     : `<a class="gal-item" href="${src}" target="_blank" rel="noopener">${img}</a>`; // le altre: clic = foto grande
@@ -659,6 +692,27 @@ stripPrev.addEventListener("click", () => goPage(-1));
 stripNext.addEventListener("click", () => goPage(1));
 strip.addEventListener("scroll", updateArrows, {passive: true});
 
+/* video in stile GIF: ridisegno sulla tela solo GIF_FPS fotogrammi al secondo, e solo quando è visibile */
+const GIF_FPS = 8;   // fotogrammi al secondo: più basso = più scattoso
+const gifSeen = new IntersectionObserver(es => es.forEach(e => e.target._visible = e.isIntersecting));
+function startGifs(){
+  strip.querySelectorAll("canvas.gif").forEach(cv => {
+    const v = cv.previousElementSibling, ctx = cv.getContext("2d");
+    let last = 0;
+    gifSeen.observe(cv);
+    const tick = t => {
+      if (!cv.isConnected) return;                       // la gallery è stata ridisegnata: questo giro finisce
+      if (cv._visible && v.readyState >= 2 && t - last >= 1000 / GIF_FPS) {
+        ctx.drawImage(v, 0, 0, cv.width, cv.height);
+        last = t;
+      }
+      requestAnimationFrame(tick);
+    };
+    v.play().catch(() => {});
+    requestAnimationFrame(tick);
+  });
+}
+
 function renderGallery(){
   const k = perPage();
   pages = [];
@@ -667,6 +721,7 @@ function renderGallery(){
   strip.scrollLeft = 0;
   layoutGallery();
   updateArrows();
+  startGifs();
 }
 
 // niente clic destro ("Salva immagine con nome") sulle foto protette
