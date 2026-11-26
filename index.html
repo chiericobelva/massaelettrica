@@ -153,13 +153,26 @@
     --sy:2.6;                                     /* allungamento verticale */
     display:grid;place-items:center;height:calc(var(--fs) * .86 * var(--sy) + 2 * var(--fs) * .4);   /* .86 = altezza maiuscole di Anton */
     background:linear-gradient(#000 50%, #fff 50%);overflow:hidden}
+  /* riquadro verde sottile attorno alla scritta: il padding verticale compensa l'allungamento,
+     così il riquadro segue l'altezza vera delle lettere e la linea resta sottile su tutti i lati */
+  .theory-frame{--gap:calc(var(--fs) * .12);   /* spazio tra lettere e riquadro */
+    padding:calc(var(--fs) * .86 * (var(--sy) - 1) / 2 + var(--gap)) var(--gap);
+    border:1px solid #00ff00}                  /* spessore e colore del riquadro */
   /* contorno nero: applicato al contenitore, dopo l'allungamento, così ha lo stesso spessore su tutti i lati */
-  .theory-word{filter:drop-shadow(1.5px 0 0 #000) drop-shadow(-1.5px 0 0 #000) drop-shadow(0 1.5px 0 #000) drop-shadow(0 -1.5px 0 #000)}
+  .theory-word{filter:drop-shadow(1.5px 0 0 #000) drop-shadow(-1.5px 0 0 #000) drop-shadow(0 1.5px 0 #000) drop-shadow(0 -1.5px 0 #000)
+    drop-shadow(0 0 14px rgba(0,0,0,.45))}   /* alone: si vede solo sul bianco (sul nero si confonde). 14px = ampiezza, .45 = intensità */
   .theory-band h2{margin:0;color:#fff;font:400 var(--fs)/1 "Anton", Impact, var(--font);letter-spacing:-.03em;text-transform:uppercase;   /* letter-spacing: più negativo = lettere più vicine */
     text-box:trim-both cap alphabetic;   /* la riga del testo è alta esattamente quanto le maiuscole: centratura precisa */
     transform:scaleY(var(--sy))}
   /* da qui in giù la pagina è bianca */
-  .theory-body{background:#fff;color:#111;min-height:40vh}
+  .theory-body{background:#fff;color:#111;min-height:40vh;padding:56px 1% 64px}
+  .theory-inner{max-width:960px;margin:0 auto}
+  /* titoli in stile terminale: "> titolo" in monospace */
+  .term-sec{margin-bottom:56px}
+  .term-sec:last-child{margin-bottom:0}
+  .term{margin:0 0 14px;font:700 clamp(18px, 2.4vw, 28px)/1.2 ui-monospace, Menlo, Consolas, "Courier New", monospace;letter-spacing:0;color:#111}
+  .term .ps{color:#00a800;margin-right:.6em}   /* il ">" verde */
+  .term .cur{display:inline-block;width:.6em;height:1em;margin-left:.2em;background:#111;vertical-align:-.15em}   /* cursore a blocco, fermo */
   #theory + footer{background:#fff;color:#888;margin:0;padding:2em 0 3em}
 
   footer{text-align:center;color:var(--dim);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:0 0 3em}
@@ -246,10 +259,25 @@
 <!-- ================= THEORY =================
      Da qui la pagina diventa bianca: articoli, tesi, corso di produzione. -->
 <section id="theory">
-  <div class="theory-band"><div class="theory-word"><h2>Theory</h2></div></div>
-  <div class="theory-body">
-    <!-- qui andranno articoli, tesi di laurea e corso di produzione musicale -->
-  </div>
+  <div class="theory-band"><div class="theory-frame"><div class="theory-word"><h2>Theory</h2></div></div></div>
+  <div class="theory-body"><div class="theory-inner">
+
+    <section class="term-sec" id="course">
+      <h3 class="term"><span class="ps">&gt;</span>music production course</h3>
+      <!-- contenuto del corso di produzione musicale -->
+    </section>
+
+    <section class="term-sec" id="fisher">
+      <h3 class="term"><span class="ps">&gt;</span>my inquiry into mark fisher</h3>
+      <!-- contenuto: tesi su Mark Fisher -->
+    </section>
+
+    <section class="term-sec" id="articles">
+      <h3 class="term"><span class="ps">&gt;</span>articles (wip)<span class="cur" aria-hidden="true"></span></h3>
+      <!-- articoli -->
+    </section>
+
+  </div></div>
 </section>
 
 <footer>© 2026 massa elettrica</footer>
