@@ -26,11 +26,20 @@
   ::selection{background:var(--acc);color:#000}
   p{margin:0 0 1em}
 
-  /* ---------- HERO: solo il logo ---------- */
-  .hero{height:100vh;height:100svh;display:grid;place-items:center}
+  /* ---------- HERO: logo piccolo con alone + contorno grande sovrapposto ---------- */
+  .hero{
+    --logo-w: min(55vw, 520px);   /* larghezza del logo bianco con alone */
+    --outline-scale: 2.2;         /* quante volte più grande è il contorno */
+    --stretch-x: .6;              /* deformazione stile Revenge: più stretto... */
+    --stretch-y: 2.4;             /* ...e molto più alto */
+    --logo-sx: .85;               /* stessa deformazione sul logo con alone, più leggera */
+    --logo-sy: 1.7;
+    height:100vh;height:100svh;display:grid;place-items:center;overflow:hidden}
+  .hero h1,.hero .outline{grid-area:1/1}
   .hero h1{margin:0;line-height:0}
-  /* dimensione del logo: larghezza massima 884px, 95% dello schermo su telefono */
-  .hero img{width:min(95vw,884px);max-height:90vh;height:auto;object-fit:contain;display:block}
+  .hero h1 img{width:calc(var(--logo-w) * var(--logo-sx));height:calc(var(--logo-w) * .6876 * var(--logo-sy));display:block}
+  /* contorno: img/logo-outline.svg (spessore della linea: stroke-width dentro il file) */
+  .hero .outline{--ow:calc(var(--logo-w) * .873 * var(--outline-scale));width:calc(var(--ow) * var(--stretch-x));height:calc(var(--ow) * .2909 * var(--stretch-y));max-width:none;display:block;position:relative;z-index:1;pointer-events:none}
 
   /* ---------- CONTENUTO (stile thirdworlds) ---------- */
   main{max-width:960px;margin:0 auto;padding:0 1% 2em}
@@ -121,9 +130,11 @@
 <body>
 
 <!-- ================= HERO =================
-     Il logo è il file img/logo.png (PNG con sfondo trasparente). -->
+     Il logo è il file img/logo.png (PNG con sfondo trasparente).
+     Il contorno grande è img/logo-outline.svg, ricavato dallo stesso logo. -->
 <header class="hero" id="top">
   <h1><img src="img/logo.png" alt="Affinità"></h1>
+  <img class="outline" src="img/logo-outline.svg" alt="" aria-hidden="true">
 </header>
 
 <main>
