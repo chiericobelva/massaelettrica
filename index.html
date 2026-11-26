@@ -249,7 +249,6 @@ const enc = s => s.split("/").map(encodeURIComponent).join("/");
 const box = document.getElementById("releases");
 
 function renderReleases(list){
-  let n = 0;
   box.innerHTML = "";
   if (!list.length) { box.innerHTML = '<p class="meta">no releases yet</p>'; return; }
   const grid = document.createElement("div");
@@ -275,12 +274,11 @@ function renderReleases(list){
       ${r.description ? `<p style="margin:10px 0 0">${esc(r.description)}</p>` : ""}
       <ol class="cat"></ol></div>`;
     const ol = el.querySelector("ol");
-    r.tracks.forEach(t => {
-      n++;
+    r.tracks.forEach((t, i) => {
       const li = document.createElement("li");
       li.dataset.src = enc(dir + t.file);
       li.innerHTML = `<button class="row" type="button">
-          <span class="n">${String(n).padStart(3,"0")}</span>
+          <span class="n">${String(i + 1).padStart(3,"0")}</span>
           <span class="t">${esc(t.title)}</span>
           <span class="d">${t.bpm ? esc(t.bpm) + " BPM" : ""}</span>
           <span class="p">▶</span></button>
