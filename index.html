@@ -108,13 +108,23 @@
   li.missing .err{display:block}
 
   /* ---------- DRIVE (file browser in iframe) ---------- */
-  /* ---------- GALLERY: collage a righe giustificate, ogni foto con le sue proporzioni ---------- */
-  .collage{display:flex;flex-wrap:wrap;gap:8px}
-  .collage > *{display:block;flex:none;overflow:hidden;background:#111}
+  /* ---------- GALLERY: una sola fila, 3 foto alla volta (1 su telefono), freccia per le successive ---------- */
+  .gal-item{display:block;flex:none;overflow:hidden;background:#111}
+  .gal-item img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.75) contrast(1.075)}   /* brightness = luminosità, contrast = contrasto (1 = originale) */
   /* foto protette: niente trascinamento, niente menu "salva" tenendo premuto su telefono */
-  .collage .locked img{pointer-events:none;-webkit-user-drag:none;user-select:none;-webkit-touch-callout:none}
-  .collage img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.75) contrast(1.075)}   /* brightness = luminosità, contrast = contrasto (1 = originale) */
-  .collage .empty{color:var(--dim);font-size:12px;padding:8px}
+  .gal-item.locked img{pointer-events:none;-webkit-user-drag:none;user-select:none;-webkit-touch-callout:none}
+  .strip-wrap{position:relative}
+  .strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+  .strip::-webkit-scrollbar{display:none}
+  .gpage{display:flex;gap:8px;flex:none;scroll-snap-align:start}   /* un gruppo di foto = larghezza della fila */
+  .strip.fit .gal-item img{object-fit:contain}                        /* telefono: foto intera nel riquadro */
+  /* frecce: pulsanti grigi a rilievo come quelli del player */
+  .strip-arrow{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:56px;padding:0;background:linear-gradient(#f4f4f4,#c4c4c4 60%,#a6a6a6);color:#111;border:1px solid #000;border-radius:2px;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #6e6e6e,0 2px 6px rgba(0,0,0,.5);font:700 14px/1 var(--font);cursor:pointer}
+  .strip-arrow:active{background:linear-gradient(#a6a6a6,#c4c4c4 40%,#e6e6e6);box-shadow:inset 1px 1px 0 #6e6e6e,inset -1px -1px 0 #fff}
+  .strip-arrow[hidden]{display:none}
+  .strip-arrow.next{right:8px}
+  .strip-arrow.prev{left:8px}
+  .strip .empty{color:var(--dim);font-size:12px;padding:8px}
 
   /* ---------- FOR BOOKINGS: dado che pesca una clip di 1 minuto dai DJ set ---------- */
   .dice{display:grid;grid-template-columns:auto minmax(0,1fr);gap:24px;align-items:center}
@@ -153,14 +163,12 @@
   .theory-band{--fs:clamp(56px, 13vw, 200px);   /* grandezza della scritta */
     --sy:2.6;                                     /* allungamento verticale */
     display:grid;place-items:center;height:calc(var(--fs) * .86 * var(--sy) + 2 * var(--fs) * .4);   /* .86 = altezza maiuscole di Anton */
-    background:linear-gradient(#000 50%, var(--paper) 50%);overflow:hidden}
-  /* riquadro verde sottile attorno alla scritta: il padding verticale compensa l'allungamento,
-     così il riquadro segue l'altezza vera delle lettere e la linea resta sottile su tutti i lati */
-  .theory-frame{--gap:calc(var(--fs) * .12);   /* spazio tra lettere e riquadro */
-    padding:calc(var(--fs) * .86 * (var(--sy) - 1) / 2 + var(--gap)) var(--gap);
-    border:1px solid var(--acc)}               /* spessore e colore del riquadro (giallo del sito) */
+    background:linear-gradient(#000 50%, var(--paper) 50%);overflow:hidden;position:relative}
+  /* barra a rilievo sul taglio nero/grigio (stessa sfumatura delle barre dei titoli), dietro la scritta */
+  .theory-band::before{content:"";position:absolute;left:0;right:0;top:50%;height:18px;transform:translateY(-50%);   /* 18px = spessore */
+    background:var(--bar);border-top:1px solid #6a6a6a;border-bottom:1px solid #000;box-shadow:0 3px 6px rgba(0,0,0,.45)}
   /* contorno nero: applicato al contenitore, dopo l'allungamento, così ha lo stesso spessore su tutti i lati */
-  .theory-word{filter:drop-shadow(1.5px 0 0 #000) drop-shadow(-1.5px 0 0 #000) drop-shadow(0 1.5px 0 #000) drop-shadow(0 -1.5px 0 #000)
+  .theory-word{position:relative;z-index:1;filter:drop-shadow(1.5px 0 0 #000) drop-shadow(-1.5px 0 0 #000) drop-shadow(0 1.5px 0 #000) drop-shadow(0 -1.5px 0 #000)
     drop-shadow(0 0 14px rgba(0,0,0,.45))}   /* alone: si vede solo sul bianco (sul nero si confonde). 14px = ampiezza, .45 = intensità */
   .theory-band h2{margin:0;color:#fff;font:400 var(--fs)/1 "Anton", Impact, var(--font);letter-spacing:-.03em;text-transform:uppercase;   /* letter-spacing: più negativo = lettere più vicine */
     text-box:trim-both cap alphabetic;   /* la riga del testo è alta esattamente quanto le maiuscole: centratura precisa */
@@ -271,10 +279,16 @@
 
   <!-- ================= GALLERY =================
        Le foto vanno in img/gallery/ (ordine = ordine alfabetico dei nomi: 01-..., 02-...),
-       poi python build-manifest.py. Il collage si adatta da solo alle proporzioni di ogni foto. -->
+       poi python build-manifest.py. Una fila sola: 3 foto alla volta (1 su telefono), freccia per le successive. -->
   <section id="gallery" class="area reveal">
     <h2>Gallery</h2>
-    <div class="inner"><div class="collage" id="collage"></div></div>
+    <div class="inner">
+      <div class="strip-wrap">
+        <div class="strip" id="strip"></div>
+        <button class="strip-arrow prev" id="stripPrev" type="button" aria-label="Previous photos" hidden>◀</button>
+        <button class="strip-arrow next" id="stripNext" type="button" aria-label="Next photos" hidden>▶</button>
+      </div>
+    </div>
   </section>
 
 </main>
@@ -282,7 +296,7 @@
 <!-- ================= THEORY =================
      Da qui la pagina diventa bianca: articoli, tesi, corso di produzione. -->
 <section id="theory">
-  <div class="theory-band"><div class="theory-frame"><div class="theory-word"><h2>Theory</h2></div></div></div>
+  <div class="theory-band"><div class="theory-word"><h2>Theory</h2></div></div>
   <div class="theory-body"><div class="theory-inner">
 
     <!-- Ogni <details> è un ramo apribile; dentro, <div class="tree"> = livello successivo (più a destra). -->
@@ -317,7 +331,7 @@
     </details>
 
     <details class="term-sec" id="articles">
-      <summary class="term"><span class="ps">&gt;</span>articles (wip)<span class="cur" aria-hidden="true"></span></summary>
+      <summary class="term"><span class="ps">&gt;</span>Articles (wip)<span class="cur" aria-hidden="true"></span></summary>
       <div class="tree">
         <!-- articoli: clic = apre l'articolo in una nuova scheda -->
         <a class="term term-dl" href="https://substack.com/@cybersaviour/note/c-257810613?utm_source=notes-share-action" target="_blank" rel="noopener"><span class="ps">[1]</span>'It's (only) about the process' - or short-form content as a digital suggestion of affect <span class="ext">[substack]</span></a>
@@ -581,65 +595,101 @@ const clipEnd = () => { if (clipDrag) { clipDrag.classList.remove("drag"); clipD
 diceInfo.addEventListener("pointerup", clipEnd);
 diceInfo.addEventListener("pointercancel", clipEnd);
 
-/* ---------- GALLERY: collage a righe giustificate ----------
-   Le foto restano intere (niente ritagli): ogni riga ha un'unica altezza e riempie tutta la larghezza.
-   Tra tutti i modi di dividere le foto in righe sceglie quello con le altezze più vicine a ROW_H. */
-const collage = document.getElementById("collage");
+/* ---------- GALLERY ----------
+   Una sola fila: 3 foto alla volta (1 su telefono); le frecce passano al gruppo successivo/precedente.
+   Tutti i gruppi hanno la stessa altezza (la media delle loro altezze naturali) e riempiono la larghezza:
+   ogni foto è larga in proporzione alla sua forma e viene rifilata solo quel poco che serve. */
+const strip = document.getElementById("strip");
+const stripPrev = document.getElementById("stripPrev");
+const stripNext = document.getElementById("stripNext");
 // foto che non si aprono a grandezza piena e non si salvano col clic destro / tenendo premuto
 const NO_DOWNLOAD = ["02-annigoni.JPG", "06-emerson.jpg"];
-let photos = [];
-const ROW_H = w => Math.max(130, Math.min(340, w / 3.6));   // altezza ideale di una riga (più bassa = foto più piccole)
+const phone = matchMedia("(max-width:600px)");
+const perPage = () => phone.matches ? 1 : 3;     // foto visibili insieme: 3 su computer, 1 su telefono
+const GAP = 8;
+let photos = [], pages = [];
 
-function layoutCollage(){
-  const W = collage.clientWidth, gap = 8, n = photos.length;
-  if (!n || !W) return;
-  const r = photos.map(p => p.w / p.h), target = ROW_H(W);
-  const rowH = row => (W - gap * (row.length - 1)) / row.reduce((a, i) => a + r[i], 0);
-  let rows;
-  if (n <= 14) {          // poche foto: provo tutte le divisioni possibili in righe
-    let best = Infinity;
-    for (let mask = 0; mask < 1 << (n - 1); mask++) {
-      const rs = []; let cur = [];
-      for (let i = 0; i < n; i++) { cur.push(i); if (i === n - 1 || (mask >> i) & 1) { rs.push(cur); cur = []; } }
-      const cost = rs.reduce((a, row) => a + Math.log(rowH(row) / target) ** 2, 0);
-      if (cost < best) { best = cost; rows = rs; }
-    }
-  } else {                // tante foto: riempio ogni riga finché non scende sotto l'altezza ideale
-    rows = []; let cur = [];
-    for (let i = 0; i < n; i++) { cur.push(i); if (rowH(cur) <= target || i === n - 1) { rows.push(cur); cur = []; } }
-  }
-  for (const row of rows) {
-    const h = rowH(row);
+function photoHTML(p){
+  const src = enc("img/gallery/" + p.file);
+  const img = `<img src="${src}" alt="Affinità" loading="lazy" width="${p.w}" height="${p.h}" draggable="false">`;
+  return NO_DOWNLOAD.includes(p.file)
+    ? `<div class="gal-item locked">${img}</div>`                                   // protetta: non si apre e non si salva
+    : `<a class="gal-item" href="${src}" target="_blank" rel="noopener">${img}</a>`; // le altre: clic = foto grande
+}
+
+function layoutGallery(){
+  const W = strip.clientWidth, k = perPage();
+  if (!W || !pages.length) return;
+  const ratio = p => p.w / p.h;
+  const sum = pg => pg.reduce((a, p) => a + ratio(p), 0);
+  const natural = pg => (W - GAP * (pg.length - 1)) / sum(pg);           // altezza a cui il gruppo riempie la riga senza ritagli
+  const full = pages.filter(pg => pg.length === k);
+  let H = (full.length ? full : pages).reduce((a, pg) => a + natural(pg), 0) / (full.length || pages.length);
+  H = Math.round(Math.min(H, innerHeight * 0.75));                       // mai più alta di 3/4 dello schermo
+  // telefono (1 foto alla volta): riquadro uguale per tutte e foto intera dentro (niente ritagli forti sulle verticali)
+  strip.classList.toggle("fit", k === 1);
+  if (k === 1) H = Math.round(Math.min(W * 0.9, innerHeight * 0.7));
+  [...strip.children].forEach((el, i) => {
+    const pg = pages[i];
+    el.style.width = W + "px";
+    const fill = pg.length === k;                                        // un gruppo incompleto non viene stirato
+    const avail = W - GAP * (pg.length - 1);
     let used = 0;
-    row.forEach((i, k) => {
-      const a = collage.children[i];
-      // l'ultima foto della riga prende i pixel rimasti, così la riga non va mai a capo per arrotondamento
-      const w = k === row.length - 1 ? W - gap * (row.length - 1) - used : Math.floor(r[i] * h);
+    [...el.children].forEach((a, j) => {
+      let w = k === 1 ? W : fill ? avail * ratio(pg[j]) / sum(pg) : H * ratio(pg[j]);
+      w = fill && j === pg.length - 1 ? avail - used : Math.floor(w);   // l'ultima prende i pixel rimasti
       used += w;
       a.style.width = w + "px";
-      a.style.height = Math.round(h) + "px";
+      a.style.height = H + "px";
     });
-  }
+  });
 }
+
+// frecce: compaiono solo se c'è un altro gruppo in quella direzione
+function updateArrows(){
+  const max = strip.scrollWidth - strip.clientWidth;
+  stripPrev.hidden = strip.scrollLeft <= 2;
+  stripNext.hidden = strip.scrollLeft >= max - 2;
+}
+function goPage(dir){
+  const smooth = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  strip.scrollBy({left: dir * strip.clientWidth, behavior: smooth ? "smooth" : "auto"});
+}
+stripPrev.addEventListener("click", () => goPage(-1));
+stripNext.addEventListener("click", () => goPage(1));
+strip.addEventListener("scroll", updateArrows, {passive: true});
+
+function renderGallery(){
+  const k = perPage();
+  pages = [];
+  for (let i = 0; i < photos.length; i += k) pages.push(photos.slice(i, i + k));
+  strip.innerHTML = pages.map(pg => `<div class="gpage">${pg.map(photoHTML).join("")}</div>`).join("");
+  strip.scrollLeft = 0;
+  layoutGallery();
+  updateArrows();
+}
+
+// niente clic destro ("Salva immagine con nome") sulle foto protette
+document.getElementById("gallery").addEventListener("contextmenu", e => { if (e.target.closest(".locked")) e.preventDefault(); });
 
 fetch("img/gallery/gallery.json", {cache: "no-cache"})
   .then(r => { if (!r.ok) throw 0; return r.json(); })
   .then(list => {
     photos = list;
     if (!photos.length) throw 0;
-    collage.innerHTML = photos.map(p => {
-      const src = enc("img/gallery/" + p.file);
-      const img = `<img src="${src}" alt="Affinità" loading="lazy" width="${p.w}" height="${p.h}" draggable="false">`;
-      return NO_DOWNLOAD.includes(p.file)
-        ? `<div class="locked">${img}</div>`                                  // protetta: non si apre e non si salva
-        : `<a href="${src}" target="_blank" rel="noopener">${img}</a>`;       // le altre: clic = foto grande
-    }).join("");
-    // niente clic destro ("Salva immagine con nome") sulle foto protette
-    collage.addEventListener("contextmenu", e => { if (e.target.closest(".locked")) e.preventDefault(); });
-    layoutCollage();
-    new ResizeObserver(layoutCollage).observe(collage);
+    renderGallery();
+    phone.addEventListener("change", renderGallery);
+    // ridimensionando la finestra resto sullo stesso gruppo di foto
+    let lastW = strip.clientWidth;
+    new ResizeObserver(() => {
+      const page = Math.round(strip.scrollLeft / (lastW || 1));
+      layoutGallery();
+      lastW = strip.clientWidth;
+      strip.scrollLeft = page * lastW;
+      updateArrows();
+    }).observe(strip.parentNode);
   })
-  .catch(() => { collage.innerHTML = '<p class="empty">add photos to img/gallery/ and run python build-manifest.py</p>'; });
+  .catch(() => { strip.innerHTML = '<p class="empty">add photos to img/gallery/ and run python build-manifest.py</p>'; });
 
 /* ---------- le sezioni compaiono mentre scorri ---------- */
 if ("IntersectionObserver" in window) {
