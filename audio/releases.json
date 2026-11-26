@@ -102,12 +102,13 @@
     "link": "",
     "description": "",
     "cover": "strade.jpg",
-    "bpm": 160,
+    
     "tracks": [
       {
         "file": "STRADE.mp3",
         "title": "Strade",
-        "bpm": 160,
+      
+    
         "size": 4990138
       }
     ]
