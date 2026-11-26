@@ -13,6 +13,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <style>
   :root{
+    --paper:#ababab;   /* grigio stile Ableton della parte THEORY (prima era bianco) */
     --bg:#000; --fg:#f1f1f1; --dim:#8a8a8a; --line:#313131; --acc:yellow;
     --font: Helvetica, "Helvetica Neue", Arial, sans-serif;   /* come newmodels.io */
     --bar: linear-gradient(0deg,#4d4d4d 0%,#0e0d00 66%,#0a0a0a 91%,#616161 100%);
@@ -152,12 +153,12 @@
   .theory-band{--fs:clamp(56px, 13vw, 200px);   /* grandezza della scritta */
     --sy:2.6;                                     /* allungamento verticale */
     display:grid;place-items:center;height:calc(var(--fs) * .86 * var(--sy) + 2 * var(--fs) * .4);   /* .86 = altezza maiuscole di Anton */
-    background:linear-gradient(#000 50%, #fff 50%);overflow:hidden}
+    background:linear-gradient(#000 50%, var(--paper) 50%);overflow:hidden}
   /* riquadro verde sottile attorno alla scritta: il padding verticale compensa l'allungamento,
      così il riquadro segue l'altezza vera delle lettere e la linea resta sottile su tutti i lati */
   .theory-frame{--gap:calc(var(--fs) * .12);   /* spazio tra lettere e riquadro */
     padding:calc(var(--fs) * .86 * (var(--sy) - 1) / 2 + var(--gap)) var(--gap);
-    border:1px solid #00ff00}                  /* spessore e colore del riquadro */
+    border:1px solid var(--acc)}               /* spessore e colore del riquadro (giallo del sito) */
   /* contorno nero: applicato al contenitore, dopo l'allungamento, così ha lo stesso spessore su tutti i lati */
   .theory-word{filter:drop-shadow(1.5px 0 0 #000) drop-shadow(-1.5px 0 0 #000) drop-shadow(0 1.5px 0 #000) drop-shadow(0 -1.5px 0 #000)
     drop-shadow(0 0 14px rgba(0,0,0,.45))}   /* alone: si vede solo sul bianco (sul nero si confonde). 14px = ampiezza, .45 = intensità */
@@ -165,15 +166,32 @@
     text-box:trim-both cap alphabetic;   /* la riga del testo è alta esattamente quanto le maiuscole: centratura precisa */
     transform:scaleY(var(--sy))}
   /* da qui in giù la pagina è bianca */
-  .theory-body{background:#fff;color:#111;min-height:40vh;padding:56px 1% 64px}
+  .theory-body{background:var(--paper);color:#111;min-height:40vh;padding:56px 1% 64px}
   .theory-inner{max-width:960px;margin:0 auto}
   /* titoli in stile terminale: "> titolo" in monospace */
-  .term-sec{margin-bottom:56px}
+  .term-sec{margin-bottom:28px}
   .term-sec:last-child{margin-bottom:0}
-  .term{margin:0 0 14px;font:700 clamp(18px, 2.4vw, 28px)/1.2 ui-monospace, Menlo, Consolas, "Courier New", monospace;letter-spacing:0;color:#111}
-  .term .ps{color:#00a800;margin-right:.6em}   /* il ">" verde */
+  .term{margin:0;font:700 clamp(18px, 2.4vw, 28px)/1.2 ui-monospace, Menlo, Consolas, "Courier New", monospace;letter-spacing:0;color:#111}
+  .term .ps{color:var(--acc);margin-right:.6em}   /* il ">" giallo */
   .term .cur{display:inline-block;width:.6em;height:1em;margin-left:.2em;background:#111;vertical-align:-.15em}   /* cursore a blocco, fermo */
-  #theory + footer{background:#fff;color:#888;margin:0;padding:2em 0 3em}
+  /* albero apribile (come Esplora risorse): clic sulla riga "> ..." apre/chiude; ogni livello va più a destra */
+  .term-sec summary{list-style:none;cursor:pointer;padding:4px 0}
+  .term-sec summary::-webkit-details-marker{display:none}
+  .term-sec summary:hover{color:var(--acc)}
+  .term .ps{display:inline-block}
+  details[open] > summary .ps{transform:rotate(90deg)}           /* aperto: il ">" punta in basso */
+  .tree{margin:6px 0 6px .5em;padding-left:1.6em;border-left:1px dotted #555}   /* rientro + linea tratteggiata del livello */
+  .term-empty{margin:6px 0;color:#444;font:400 14px ui-monospace, Menlo, Consolas, monospace}
+  /* riquadro del depliant: se l'immagine manca mostra dove metterla */
+  .course{display:grid;grid-template-columns:min(320px, 40%) minmax(0, 1fr);gap:24px;align-items:start;margin:8px 0 12px}
+  .flyer{width:100%;margin:0}
+  .flyer img{width:100%;height:auto;display:block}
+  .flyer.missing{aspect-ratio:1/1.414;display:grid;place-items:center;border:1px dashed #555;color:#444;font:400 12px ui-monospace, Menlo, Consolas, monospace;text-align:center;padding:12px}
+  /* box di testo della descrizione */
+  .term-text{max-width:640px;margin:0;padding:16px 18px;border:1px solid #111;font:400 15px/1.5 var(--font)}
+  .term-text p:last-child{margin-bottom:0}
+  .term-text .tagline{font-style:italic}
+  #theory + footer{background:var(--paper);color:#444;margin:0;padding:2em 0 3em}
 
   footer{text-align:center;color:var(--dim);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:0 0 3em}
 
@@ -184,6 +202,7 @@
     .row{grid-template-columns:28px 1fr auto;gap:10px}
     .row .d{display:none}
     .dice{grid-template-columns:1fr;justify-items:start}
+    .course{grid-template-columns:1fr}
     .dice.idle{flex-direction:column;align-items:center;text-align:center}
     .dice-btn{--dice:110px}
     .intro{grid-template-columns:1fr;gap:14px;padding:12px 0}
@@ -262,20 +281,36 @@
   <div class="theory-band"><div class="theory-frame"><div class="theory-word"><h2>Theory</h2></div></div></div>
   <div class="theory-body"><div class="theory-inner">
 
-    <section class="term-sec" id="course">
-      <h3 class="term"><span class="ps">&gt;</span>music production course</h3>
-      <!-- contenuto del corso di produzione musicale -->
-    </section>
+    <!-- Ogni <details> è un ramo apribile; dentro, <div class="tree"> = livello successivo (più a destra). -->
+    <details class="term-sec" id="course">
+      <summary class="term"><span class="ps">&gt;</span>Sound_Futuro / music production course</summary>
+      <div class="tree">
 
-    <section class="term-sec" id="fisher">
-      <h3 class="term"><span class="ps">&gt;</span>my inquiry into mark fisher</h3>
-      <!-- contenuto: tesi su Mark Fisher -->
-    </section>
+        <!-- depliant a sinistra, descrizione a destra -->
+        <div class="course">
+            <!-- immagine del depliant: metti il file in img/theory/course-flyer.jpg -->
+            <figure class="flyer"><img src="img/theory/course-flyer.jpg" alt="Sound_Futuro — course flyer"
+              onerror="this.parentNode.classList.add('missing');this.parentNode.textContent='img/theory/course-flyer.jpg'"></figure>
+            <!-- descrizione del corso: bozza ripresa dal vecchio press kit, modificala liberamente -->
+            <div class="term-text">
+              <p><strong>Sound_Futuro</strong> — pop-up electronic music course, Firenze, Sep 2025 → Feb 2026.</p>
+              <p>Conceived, developed and artistically directed by Affinità. A modular path of in-person lessons on FL&nbsp;Studio for beginners and advanced students, built as an alternative to learning alone from online tutorials.</p>
+              <p class="tagline">Community building, economic accessibility and the promotion of grassroots culture — production taught in a room, together.</p>
+              <p>Available in Milan for workshops, one-to-one production lessons and programmes with schools, associations and community spaces.</p>
+            </div>
+        </div>
+      </div>
+    </details>
 
-    <section class="term-sec" id="articles">
-      <h3 class="term"><span class="ps">&gt;</span>articles (wip)<span class="cur" aria-hidden="true"></span></h3>
-      <!-- articoli -->
-    </section>
+    <details class="term-sec" id="fisher">
+      <summary class="term"><span class="ps">&gt;</span>my inquiry into mark fisher</summary>
+      <div class="tree"><p class="term-empty">coming soon</p></div>
+    </details>
+
+    <details class="term-sec" id="articles">
+      <summary class="term"><span class="ps">&gt;</span>articles (wip)<span class="cur" aria-hidden="true"></span></summary>
+      <div class="tree"><p class="term-empty">coming soon</p></div>
+    </details>
 
   </div></div>
 </section>
