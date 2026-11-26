@@ -62,6 +62,8 @@
 
   /* ---------- MUSICA ---------- */
   /* griglia di copertine: clic = apre il player sotto la riga */
+  /* la sezione Music esce dalla colonna centrale: larga fino a 1280px (o 98% dello schermo) */
+  #music{--wide:min(1280px, 98vw);margin-left:calc((100% - var(--wide)) / 2);margin-right:calc((100% - var(--wide)) / 2)}
   .albums{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:20px 16px}
   .alb{display:block;width:100%;padding:0;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
   .alb .cover{margin-bottom:8px}
