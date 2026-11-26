@@ -54,5 +54,43 @@
         "size": 9975418
       }
     ]
+  },
+  {
+    "folder": "Shy Town",
+    "type": "Single",
+    "title": "Shy Town",
+    "year": "2025",
+    "label": "Massa Elettrica",
+    "link": "https://affinita.bandcamp.com/track/shy-town",
+    "description": "",
+    "cover": "morganafinsmaller.png",
+    "bpm": 126,
+    "tracks": [
+      {
+        "file": "SHY.mp3",
+        "title": "Shy Town",
+        "bpm": 126,
+        "size": 11013178
+      }
+    ]
+  },
+  {
+    "folder": "Zima Blue",
+    "type": "Single",
+    "title": "Zima Blue",
+    "year": "2024",
+    "label": "Massa Elettrica",
+    "link": "https://affinita.bandcamp.com/track/zima-blue",
+    "description": "",
+    "cover": "ZIMA.png.jpg",
+    "bpm": 160,
+    "tracks": [
+      {
+        "file": "ZIMA.mp3",
+        "title": "Zima Blue",
+        "bpm": 160,
+        "size": 9975418
+      }
+    ]
   }
 ]
