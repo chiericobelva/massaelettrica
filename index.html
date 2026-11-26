@@ -110,7 +110,7 @@
   /* ---------- GALLERY: collage a righe giustificate, ogni foto con le sue proporzioni ---------- */
   .collage{display:flex;flex-wrap:wrap;gap:8px}
   .collage a{display:block;flex:none;overflow:hidden;background:#111}
-  .collage img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.75)}   /* luminosità delle foto: 1 = originale, più basso = più scure */
+  .collage img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.75) contrast(1.15)}   /* brightness = luminosità, contrast = contrasto (1 = originale) */
   .collage .empty{color:var(--dim);font-size:12px;padding:8px}
 
   /* ---------- FOR BOOKINGS: dado che pesca una clip di 1 minuto dai DJ set ---------- */
@@ -141,20 +141,25 @@
   ul.plain .soon{color:var(--dim)}
   ul.plain .soon a{pointer-events:none;color:var(--dim);text-decoration:none}
 
-  /* ---------- PRESS KIT ---------- */
-  .kit{display:grid;gap:8px}
-  .kit h3{margin:0 0 10px;font:400 12px var(--font);letter-spacing:.3em;text-transform:uppercase;color:var(--dim)}
-  .kit .lede{font-size:18px;line-height:1.4}
-  .kit h4{margin:0 0 4px;font:700 16px var(--font)}
-  blockquote{margin:18px 0;padding-left:16px;border-left:2px solid var(--acc);font-size:16px}
-  details summary{cursor:pointer;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin:6px 0 14px;list-style:none}
-  details summary::-webkit-details-marker{display:none}
-  details[open] summary{color:var(--dim)}
-  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
-  .tags span{font-size:11px;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--line);border-radius:12px;padding:3px 10px;color:var(--dim)}
+  /* ---------- THEORY ----------
+     La fascia è nera nella metà alta e bianca nella metà bassa: il taglio cade esattamente
+     a metà altezza della scritta. La scritta è sempre bianca, con un contorno nero
+     (sul nero non si vede, sul bianco la disegna). */
+  /* font Anton (gratuito, licenza in fonts/OFL.txt), solo per la scritta THEORY */
+  @font-face{font-family:"Anton";src:url("fonts/anton.woff2") format("woff2");font-weight:400;font-display:swap}
+  .theory-band{--fs:clamp(56px, 13vw, 200px);   /* grandezza della scritta */
+    --sy:2.6;                                     /* allungamento verticale */
+    display:grid;place-items:center;height:calc(var(--fs) * .86 * var(--sy) + 2 * var(--fs) * .4);   /* .86 = altezza maiuscole di Anton */
+    background:linear-gradient(#000 50%, #fff 50%);overflow:hidden}
+  /* contorno nero: applicato al contenitore, dopo l'allungamento, così ha lo stesso spessore su tutti i lati */
+  .theory-word{filter:drop-shadow(1.5px 0 0 #000) drop-shadow(-1.5px 0 0 #000) drop-shadow(0 1.5px 0 #000) drop-shadow(0 -1.5px 0 #000)}
+  .theory-band h2{margin:0;color:#fff;font:400 var(--fs)/1 "Anton", Impact, var(--font);letter-spacing:-.03em;text-transform:uppercase;   /* letter-spacing: più negativo = lettere più vicine */
+    text-box:trim-both cap alphabetic;   /* la riga del testo è alta esattamente quanto le maiuscole: centratura precisa */
+    transform:scaleY(var(--sy))}
+  /* da qui in giù la pagina è bianca */
+  .theory-body{background:#fff;color:#111;min-height:40vh}
+  #theory + footer{background:#fff;color:#888;margin:0;padding:2em 0 3em}
 
-  #backtotop{display:block;text-align:center;padding:8px;background:var(--bar);border-radius:0 0 12px 12px;color:var(--fg);text-decoration:none;letter-spacing:.3em;font-size:12px;text-transform:uppercase}
-  #backtotop:hover{color:yellow}
   footer{text-align:center;color:var(--dim);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:0 0 3em}
 
   @media (max-width:600px){
@@ -234,61 +239,16 @@
     <div class="inner"><div class="collage" id="collage"></div></div>
   </section>
 
-  <!-- ================= PRESS KIT ================= -->
-  <section id="presskit" class="area reveal">
-    <h2>Press kit</h2>
-    <div class="inner kit">
-
-      <div class="puffy">
-        <h3>Bio</h3>
-        <p class="lede">Affinità (2002) is a producer, selector and ex-philosopher whose assemblies operate between electronic music and cybernetic theory.</p>
-        <details>
-          <summary>+ Full bio</summary>
-          <p>Profoundly dedicated to the promotion of underground movements, since 2022 Affinità has been committed to the unaffiliated <em>Wish</em> network, the collective epicenter of soundsystem crews and subversive social efforts in the metropolitan Florence area. At the decks, his hybrid sets are curated with an improvisational edge, blending Dubstep and Grime with Dancehall, Gqom, Experimental Hip-hop and Footwork. Affinità was soon recognized for his signature sound by the wider urban scene, and was recently hosted by grassroots radio shows including <em>FANGO Radio</em> and <em>LINEA Milano</em>. He's nonetheless most frequently off the commercial radar, and found playing alongside acclaimed sound crews, collectives and performers.</p>
-          <p>His production is a distinctive mutation of the Footwork and Breakbeat genres, generally pulsating at 160 bpm, though infused with complex melodic textures, organic drums and the intelligent use of repetitive vocal lines: a dextrous sampling technique is at the heart of his production process, mostly relying on manual chopping and sequencing, layering sounds from old videogames, motion picture soundtracks and dusting libraries from obsolete DAWs and VSTs. His commercial debut was set off independently by the 4-track EP <em>Massa Elettrica</em> released in early 2025, framing the sensibility and aesthetic for his subsequent single publications.</p>
-        </details>
-      </div>
-
-      <div class="puffy">
-        <h3>Radio &amp; sets</h3>
-        <p>Hybrid sets with an improvisational edge: dubstep and grime against dancehall, gqom, experimental hip-hop and footwork.</p>
-        <ul class="plain">
-          <li><span><em>FANGO Radio</em> — guest set</span><span class="meta"><a href="#">Listen ↗</a></span></li>
-          <li><span><em>LINEA Milano</em> — guest set</span><span class="meta"><a href="#">Listen ↗</a></span></li>
-        </ul>
-      </div>
-
-      <div class="puffy">
-        <h3>Education</h3>
-        <h4>Sound_futuro</h4>
-        <div class="meta">Pop-up electronic music course — Firenze — Sep 2025 → Feb 2026</div>
-        <p style="margin-top:14px">Conceived, developed and artistically directed by Affinità. A modular path of in-person lessons on FL&nbsp;Studio for beginners and advanced students, built as an alternative to learning alone from online tutorials.</p>
-        <blockquote>Community building, economic accessibility and the promotion of grassroots culture — production taught in a room, together.</blockquote>
-        <p>Available in Milan for workshops, one-to-one production lessons and programmes with schools, associations and community spaces.</p>
-        <div class="tags"><span>FL Studio</span><span>Sampling</span><span>Beat-making</span><span>Recording</span><span>Beginner → advanced</span></div>
-      </div>
-
-      <div class="puffy">
-        <h3>Community</h3>
-        <p>Since 2022 part of the unaffiliated <em>Wish</em> network — the collective epicentre of soundsystem crews and grassroots social efforts in the metropolitan area of Florence.</p>
-        <p>Member of the core organising team of large-scale popular cultural events and critical-mass mobilisations across Florence and Prato, working alongside the region's autonomous spaces: sound system set-up, harm-reduction practices, communication, food and bar service.</p>
-        <div class="tags"><span>Wish Parade</span><span>c.s.s. CAT</span><span>NUB Project Space</span><span>ARTiglieria</span></div>
-      </div>
-
-      <div class="puffy" id="contact">
-        <h3>Contact</h3>
-        <ul class="plain">
-          <li><span>Booking &amp; education</span><span class="meta" id="mail">enable JavaScript</span></li>
-          <li><span>Instagram</span><span class="meta"><a href="#">@affinita ↗</a></span></li>
-          <li><span>Bandcamp / streaming</span><span class="meta"><a href="#">Listen ↗</a></span></li>
-        </ul>
-      </div>
-
-    </div>
-    <a id="backtotop" href="#top">Back to the top</a>
-  </section>
-
 </main>
+
+<!-- ================= THEORY =================
+     Da qui la pagina diventa bianca: articoli, tesi, corso di produzione. -->
+<section id="theory">
+  <div class="theory-band"><div class="theory-word"><h2>Theory</h2></div></div>
+  <div class="theory-body">
+    <!-- qui andranno articoli, tesi di laurea e corso di produzione musicale -->
+  </div>
+</section>
 
 <footer>© 2026 massa elettrica</footer>
 
@@ -608,9 +568,6 @@ if ("IntersectionObserver" in window) {
 }
 
 /* ---------- anti-spam email (non compare in chiaro nell'HTML) ---------- */
-const u = ["booking"], d = ["massaelettrica", "net"];
-const addr = u.join("") + "@" + d.join(".");
-document.getElementById("mail").innerHTML = `<a href="mailto:${addr}">${addr}</a>`;
 const bm = ["the1", "affinita"].join("") + "@" + ["aol", "com"].join(".");
 document.getElementById("bookMail").innerHTML = `<a class="mail" href="mailto:${bm}">${bm}</a>`;
 </script>
