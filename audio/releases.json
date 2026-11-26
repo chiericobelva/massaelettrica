@@ -92,5 +92,24 @@
         "size": 9975418
       }
     ]
+  },
+  {
+    "folder": "Strade",
+    "type": "Single",
+    "title": "Strade",
+    "year": "2022",
+    "label": "Massa Elettrica",
+    "link": "",
+    "description": "",
+    "cover": "strade.jpg",
+    "bpm": 160,
+    "tracks": [
+      {
+        "file": "STRADE.mp3",
+        "title": "Strade",
+        "bpm": 160,
+        "size": 4990138
+      }
+    ]
   }
 ]
