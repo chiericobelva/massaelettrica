@@ -63,7 +63,7 @@
   /* ---------- MUSICA ---------- */
   /* griglia di copertine: clic = apre il player sotto la riga */
   /* la sezione Music esce dalla colonna centrale: larga fino a 1280px (o 98% dello schermo) */
-  #music,.ticker{--wide:min(1280px, 98vw);margin-left:calc((100% - var(--wide)) / 2);margin-right:calc((100% - var(--wide)) / 2)}
+  #music,.ticker,#bookings{--wide:min(1280px, 98vw);margin-left:calc((100% - var(--wide)) / 2);margin-right:calc((100% - var(--wide)) / 2)}
 
   /* ---------- TICKER: scritta a scorrimento sotto Music (stile banner anni '90) ---------- */
   .ticker{margin-top:-1em;margin-bottom:2em;overflow:hidden;background:#000;border:0;padding:8px 0}
@@ -104,8 +104,23 @@
   li.missing .err{display:block}
 
   /* ---------- DRIVE (file browser in iframe) ---------- */
-  .drive{position:relative;height:560px;border-radius:12px;overflow:hidden;box-shadow:var(--puffy);background:#000}
-  .drive iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  /* ---------- FOR BOOKINGS: dado che pesca una clip di 1 minuto dai DJ set ---------- */
+  .dice{display:grid;grid-template-columns:auto minmax(0,1fr);gap:24px;align-items:center}
+  .dice-btn{--dice:140px;width:var(--dice);padding:0;background:#000;border:0;color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;font:700 14px var(--font);letter-spacing:.2em;text-transform:uppercase}
+  .dice-btn img{width:var(--dice);height:var(--dice);object-fit:contain;display:block}
+  .dice-btn .cta{color:yellow;font-size:12px;letter-spacing:.2em}   /* scritta CLICK HERE sotto i dadi */
+  .dice-btn:hover{color:yellow}
+  .dice-info h3{margin:0 0 2px;font:700 18px/1.2 var(--font);letter-spacing:-.01em}
+  .dice-info .src{font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--dim)}
+  .dice-info .src a{color:var(--fg);text-decoration:none}
+  .dice-info .src a:hover{color:yellow}
+  .dice-info .ctrl{display:flex;align-items:center;gap:10px;margin:12px 0 4px}
+  .dice-info .bar{display:block;flex:1;margin:0}
+  /* tasto pausa/play: pulsante grigio a rilievo, come il cursore della fascia */
+  .dice-info .pp{flex:none;width:36px;height:26px;padding:0;background:linear-gradient(#f4f4f4,#c4c4c4 60%,#a6a6a6);color:#111;border:1px solid #000;border-radius:2px;box-shadow:inset 1px 1px 0 #fff,inset -1px -1px 0 #6e6e6e;font:700 11px/1 var(--font);letter-spacing:-.05em;cursor:pointer}
+  .dice-info .pp:active{background:linear-gradient(#a6a6a6,#c4c4c4 40%,#e6e6e6);box-shadow:inset 1px 1px 0 #6e6e6e,inset -1px -1px 0 #fff}
+  .dice-info .time{font-size:12px;color:var(--dim)}
+  .dice-info .hint{color:var(--dim)}
 
   /* ---------- LISTE (pdf, contatti) ---------- */
   ul.plain{list-style:none;margin:0;padding:0}
@@ -135,7 +150,8 @@
     .albums{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:16px 12px}
     .row{grid-template-columns:28px 1fr auto;gap:10px}
     .row .d{display:none}
-    .drive{height:480px}
+    .dice{grid-template-columns:1fr;justify-items:start}
+    .dice-btn{--dice:110px}
     .intro{grid-template-columns:1fr;gap:14px;padding:12px 0}
     .puffy{padding:16px}
   }
@@ -180,11 +196,20 @@
   </div>
 
   <!-- ================= DRIVE ================= -->
-  <section id="drive" class="area reveal">
-    <h2>Drive</h2>
-    <div class="inner">
-      <div class="drive"><iframe src="files/index.html" title="Archivio file" loading="lazy"></iframe></div>
-    </div>
+  <section id="bookings" class="area reveal">
+    <h2>For bookings</h2>
+    <div class="inner"><div class="puffy">
+      <!-- Il dado è img/dice.gif. Le clip le crea build-manifest.py dai set in sets/ (vedi lo script). -->
+      <div class="dice">
+        <button class="dice-btn" id="diceBtn" type="button" aria-label="Play a random minute from a DJ set">
+          <img src="img/dice.gif" alt="" onerror="this.replaceWith('roll')">
+          <span class="cta">Click here</span>
+        </button>
+        <div class="dice-info" id="diceInfo">
+          <p class="hint">ROLL THE DICE!! Listen to one random minute from my recorded sets</p>
+        </div>
+      </div>
+    </div></div>
   </section>
 
   <!-- ================= PDF ================= -->
@@ -393,6 +418,111 @@ audio.addEventListener("error", () => {
   current.classList.remove("playing"); current.classList.add("missing");
   current.querySelector(".p").textContent = "—";
 });
+
+/* ---------- FOR BOOKINGS: il dado pesca una clip (clips/clips.json, creato da build-manifest.py) ---------- */
+const clipAudio = new Audio();
+clipAudio.preload = "none";
+const diceBtn = document.getElementById("diceBtn");
+const diceInfo = document.getElementById("diceInfo");
+let clips = [], deck = [], lastClip = -1, fadeTimer = null;
+
+/* mazzo mescolato davvero (Fisher-Yates): ogni ordine ha la stessa probabilità */
+function shuffled(n){
+  const a = [...Array(n).keys()];
+  for (let i = n - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+const FADE = 0.5;   // secondi di dissolvenza del volume all'inizio e alla fine della clip
+const mmss = s => `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,"0")}`;
+
+fetch("clips/clips.json", {cache: "no-cache"})
+  .then(r => { if (!r.ok) throw 0; return r.json(); })
+  .then(list => { clips = list.clips || []; })
+  .catch(() => {});
+
+function roll(){
+  if (!clips.length) { diceInfo.innerHTML = '<p class="hint">No clips yet — run python build-manifest.py</p>'; return; }
+  if (!deck.length) {   // mazzo nuovo: niente ripetizioni finché non le senti tutte
+    deck = shuffled(clips.length);
+    // a cavallo tra un mazzo e l'altro non ripetere subito l'ultima clip sentita
+    if (deck.length > 1 && deck[deck.length - 1] === lastClip) [deck[0], deck[deck.length - 1]] = [deck[deck.length - 1], deck[0]];
+  }
+  lastClip = deck.pop();
+  const c = clips[lastClip];
+  diceInfo.innerHTML = `<h3>${esc(c.title)}</h3>
+    <div class="src">${[c.genre ? esc(c.genre) : "", c.start != null ? "from " + mmss(c.start) : "", c.link ? `<a href="${esc(c.link)}" target="_blank" rel="noopener">source ↗</a>` : ""].filter(Boolean).join(" — ")}</div>
+    <div class="ctrl"><button class="pp" type="button" aria-label="Pause">❚❚</button><div class="bar"><span></span><i class="thumb"></i></div></div>
+    <div class="time">0:00 / ${mmss(c.duration || 60)}</div>`;
+  audio.pause();                       // ferma il player Music se sta suonando
+  clipAudio.src = enc("clips/" + c.file);
+  clipAudio.volume = 0;
+  clipAudio.play().catch(setPP);       // se il browser blocca l'avvio, il tasto mostra ▶
+}
+diceBtn.addEventListener("click", roll);
+
+clipAudio.addEventListener("timeupdate", () => {
+  const t = clipAudio.currentTime, d = clipAudio.duration;
+  if (!d) return;
+  clipAudio.volume = Math.max(0, Math.min(1, t / FADE, (d - t) / FADE));
+  const bar = diceInfo.querySelector(".bar");
+  if (bar && !clipDrag) bar.style.setProperty("--f", t / d);
+  const tm = diceInfo.querySelector(".time");
+  if (tm) tm.textContent = `${mmss(t)} / ${mmss(d)}`;
+});
+clipAudio.addEventListener("play", () => {
+  clearInterval(fadeTimer);
+  // timeupdate arriva ~4 volte al secondo: per una dissolvenza morbida aggiorno il volume più spesso
+  fadeTimer = setInterval(() => {
+    const t = clipAudio.currentTime, d = clipAudio.duration;
+    if (d) clipAudio.volume = Math.max(0, Math.min(1, t / FADE, (d - t) / FADE));
+  }, 50);
+});
+clipAudio.addEventListener("pause", () => clearInterval(fadeTimer));
+clipAudio.addEventListener("ended", () => clearInterval(fadeTimer));
+
+/* tasto pausa/play della clip */
+function setPP(){
+  const b = diceInfo.querySelector(".pp");
+  if (!b) return;
+  const playing = !clipAudio.paused && !clipAudio.ended;
+  b.textContent = playing ? "❚❚" : "▶";
+  b.setAttribute("aria-label", playing ? "Pause" : "Play");
+}
+["play", "pause", "ended"].forEach(ev => clipAudio.addEventListener(ev, setPP));
+diceInfo.addEventListener("click", e => {
+  if (!e.target.closest(".pp")) return;
+  if (clipAudio.paused || clipAudio.ended) {
+    if (clipAudio.ended) clipAudio.currentTime = 0;
+    audio.pause();                     // ferma il player Music se sta suonando
+    clipAudio.play().catch(()=>{});
+  } else {
+    clipAudio.pause();
+  }
+});
+audio.addEventListener("play", () => clipAudio.pause());   // se parte la musica, la clip si ferma
+
+/* fascia della clip: clic o trascinamento */
+let clipDrag = null;
+function clipSeek(bar, x){
+  const r = bar.getBoundingClientRect();
+  const f = Math.min(1, Math.max(0, (x - r.left - 8) / (r.width - 16)));
+  bar.style.setProperty("--f", f);
+  if (clipAudio.duration) clipAudio.currentTime = f * clipAudio.duration;
+}
+diceInfo.addEventListener("pointerdown", e => {
+  const bar = e.target.closest(".bar");
+  if (!bar || !clipAudio.duration) return;
+  e.preventDefault();
+  clipDrag = bar; bar.classList.add("drag"); bar.setPointerCapture(e.pointerId);
+  clipSeek(bar, e.clientX);
+});
+diceInfo.addEventListener("pointermove", e => { if (clipDrag) clipSeek(clipDrag, e.clientX); });
+const clipEnd = () => { if (clipDrag) { clipDrag.classList.remove("drag"); clipDrag = null; } };
+diceInfo.addEventListener("pointerup", clipEnd);
+diceInfo.addEventListener("pointercancel", clipEnd);
 
 /* ---------- le sezioni compaiono mentre scorri ---------- */
 if ("IntersectionObserver" in window) {

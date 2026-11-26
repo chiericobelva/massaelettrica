@@ -33,19 +33,19 @@
         "file": "01-METRO.mp3",
         "title": "Metro (Solo)",
         "bpm": 160,
-        "size": 9975418
+        "size": 6781498
       },
       {
         "file": "02-ZIMA.mp3",
         "title": "Zima Blue",
         "bpm": 160,
-        "size": 9975418
+        "size": 9398458
       },
       {
         "file": "03-DREADED.mp3",
         "title": "Dreaded",
         "bpm": 160,
-        "size": 9975418
+        "size": 9387898
       },
       {
         "file": "04-DONTCOMECLOSE.mp3",
@@ -89,7 +89,7 @@
         "file": "ZIMA.mp3",
         "title": "Zima Blue",
         "bpm": 160,
-        "size": 9975418
+        "size": 9398458
       }
     ]
   },
@@ -102,13 +102,11 @@
     "link": "",
     "description": "",
     "cover": "strade.jpg",
-    
+    "bpm": null,
     "tracks": [
       {
         "file": "STRADE.mp3",
         "title": "Strade",
-      
-    
         "size": 4990138
       }
     ]

@@ -3,3 +3,4 @@ Thumbs.db
 __pycache__/
 *.wav
 build-manifest.py
+sets/*.mp3
