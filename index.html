@@ -52,12 +52,13 @@
   .reveal{opacity:0;transform:translateY(24px);transition:opacity .8s ease,transform .8s ease}
   .reveal.in{opacity:1;transform:none}
 
-  /* ---------- IMMAGINI ---------- */
-  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
-  .gallery figure{margin:0;border-radius:12px;overflow:hidden;background:#000;box-shadow:var(--puffy);aspect-ratio:4/5}
-  .gallery img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .2s}
-  .gallery img:hover{opacity:.8}
-  .gallery figure.missing{display:grid;place-items:center;padding:16px;text-align:center;color:var(--dim);font-size:12px}
+  /* ---------- INTRO: gif quadrata a sinistra, testo bianco a destra ---------- */
+  .intro{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px;align-items:center;margin-bottom:2em;padding:32px 0;background:#000;color:#fff}
+  .intro figure{margin:0;aspect-ratio:1;background:#000;overflow:hidden}
+  .intro figure img{width:100%;height:100%;object-fit:cover;display:block}
+  .intro figure.missing{display:grid;place-items:center;border:1px dashed var(--line);color:var(--dim);font-size:12px}
+  .intro .text{font:400 18px/1.4 var(--font)}
+  .intro .text p:last-child{margin-bottom:0}
 
   /* ---------- MUSICA ---------- */
   /* griglia di copertine: clic = apre il player sotto la riga */
@@ -122,6 +123,7 @@
     .row{grid-template-columns:28px 1fr auto;gap:10px}
     .row .d{display:none}
     .drive{height:480px}
+    .intro{grid-template-columns:1fr;gap:20px;padding:20px 0}
     .puffy{padding:16px}
   }
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal{opacity:1;transform:none;transition:none}}
@@ -139,10 +141,14 @@
 
 <main>
 
-  <!-- ================= IMMAGINI ================= -->
-  <section id="images" class="area reveal">
-    <h2>Images</h2>
-    <div class="inner"><div class="gallery" id="gallery"></div></div>
+  <!-- ================= INTRO =================
+       GIF: metti il file in img/intro.gif (quadrata; se non è quadrata viene ritagliata al centro).
+       Testo: scrivilo nei <p> qui sotto. -->
+  <section id="intro" class="intro reveal">
+    <figure><img src="img/intro.gif" alt="" onerror="this.parentNode.classList.add('missing');this.parentNode.textContent='img/intro.gif'"></figure>
+    <div class="text">
+      <p>Affinità (2002) is a producer, selector and philosophy postgraduate based in Milan whose assemblies operate between electronic music and hauntology. Profoundly dedicated to the promotion of underground movements, since 2022 Affinità has been committed to the unaffiliated Wish network, the collective epicenter of soundsystem crews and subversive social efforts in the metropolitan Florence area. At the decks, his hybrid sets are curated with an improvisational edge, blending bass-heavy genres (Dubstep, Halfstep DnB) with lush and melodic overtones (Ambient, Soundtracks). Affinità was soon recognized for his signature sound by the wider urban scene, and now hosts his own radio show “Ipogeo” on FANGO Radio . He’s nonetheless most frequently off the commercial radar, and found playing alongside acclaimed sound crews, collectives and performers. His production is a distinctive mutation of the Footwork and Breakbeat genres, generally pulsating at 160 bpm, though infused with complex melodic textures, organic drums and the intelligent use of repetitive vocal lines: sampling sits at the heart of his production process, mostly relying on manual chopping and sequencing, layering sounds from old videogames, motion picture soundtracks and dusting libraries from obsolete DAW’s and VST’s. His commercial debut was set off independently by the 4-track EP Massa Elettrica released in early 2025, framing the affect for his subsequent single publications.</p>
+    </div>
   </section>
 
   <!-- ================= MUSICA ================= -->
@@ -234,27 +240,6 @@
 <audio id="audio" preload="none"></audio>
 
 <script>
-/* =====================================================================
-   IMMAGINI — metti le foto in /img e aggiungi una riga qui.
-   ===================================================================== */
-const IMAGES = [
-  { src: "img/photo-01.jpg", alt: "Affinità live" },
-  { src: "img/photo-02.jpg", alt: "Affinità" },
-  { src: "img/photo-03.jpg", alt: "Affinità" },
-];
-
-/* ---------- render galleria ---------- */
-const gal = document.getElementById("gallery");
-IMAGES.forEach(im => {
-  const f = document.createElement("figure");
-  const img = new Image();
-  img.src = im.src; img.alt = im.alt; img.loading = "lazy";
-  img.onerror = () => { f.classList.add("missing"); f.textContent = "add " + im.src; };
-  const a = document.createElement("a");
-  a.href = im.src; a.target = "_blank"; a.rel = "noopener";
-  a.appendChild(img); f.appendChild(a); gal.appendChild(f);
-});
-
 /* ---------- catalogo: generato da build-manifest.py in audio/releases.json ----------
    Non modificare a mano: metti mp3 + cover.jpg in audio/<album>/ e lancia lo script. */
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
