@@ -121,6 +121,9 @@
   .dice-info .pp:active{background:linear-gradient(#a6a6a6,#c4c4c4 40%,#e6e6e6);box-shadow:inset 1px 1px 0 #6e6e6e,inset -1px -1px 0 #fff}
   .dice-info .time{font-size:12px;color:var(--dim)}
   .dice-info .hint{color:var(--dim)}
+  /* prima del primo clic: dado e scritta affiancati al centro */
+  .dice.idle{display:flex;justify-content:center}
+  .dice.idle .dice-info{flex:0 1 auto;max-width:360px}
 
   /* ---------- LISTE (pdf, contatti) ---------- */
   ul.plain{list-style:none;margin:0;padding:0}
@@ -151,6 +154,7 @@
     .row{grid-template-columns:28px 1fr auto;gap:10px}
     .row .d{display:none}
     .dice{grid-template-columns:1fr;justify-items:start}
+    .dice.idle{flex-direction:column;align-items:center;text-align:center}
     .dice-btn{--dice:110px}
     .intro{grid-template-columns:1fr;gap:14px;padding:12px 0}
     .puffy{padding:16px}
@@ -200,7 +204,7 @@
     <h2>For bookings</h2>
     <div class="inner"><div class="puffy">
       <!-- Il dado è img/dice.gif. Le clip le crea build-manifest.py dai set in sets/ (vedi lo script). -->
-      <div class="dice">
+      <div class="dice idle" id="dice">
         <button class="dice-btn" id="diceBtn" type="button" aria-label="Play a random minute from a DJ set">
           <img src="img/dice.gif" alt="" onerror="this.replaceWith('roll')">
           <span class="cta">Click here</span>
@@ -452,10 +456,22 @@ function roll(){
   }
   lastClip = deck.pop();
   const c = clips[lastClip];
+  // al primo clic il dado scivola dal centro a sinistra (dal secondo in poi resta fermo)
+  const diceBox = document.getElementById("dice");
+  const from = diceBox.classList.contains("idle") ? diceBtn.getBoundingClientRect() : null;
+  diceBox.classList.remove("idle");
   diceInfo.innerHTML = `<h3>${esc(c.title)}</h3>
     <div class="src">${[c.genre ? esc(c.genre) : "", c.start != null ? "from " + mmss(c.start) : "", c.link ? `<a href="${esc(c.link)}" target="_blank" rel="noopener">source ↗</a>` : ""].filter(Boolean).join(" — ")}</div>
     <div class="ctrl"><button class="pp" type="button" aria-label="Pause">❚❚</button><div class="bar"><span></span><i class="thumb"></i></div></div>
     <div class="time">0:00 / ${mmss(c.duration || 60)}</div>`;
+  if (from && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const to = diceBtn.getBoundingClientRect();
+    diceBtn.style.transition = "none";
+    diceBtn.style.transform = `translate(${from.left - to.left}px, ${from.top - to.top}px)`;
+    diceBtn.getBoundingClientRect();   // il browser registra la posizione di partenza
+    diceBtn.style.transition = "transform .8s ease";
+    diceBtn.style.transform = "";
+  }
   audio.pause();                       // ferma il player Music se sta suonando
   clipAudio.src = enc("clips/" + c.file);
   clipAudio.volume = 0;
