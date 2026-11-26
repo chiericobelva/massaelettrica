@@ -25,5 +25,26 @@
     "children": []
    }
   ]
+ },
+ {
+  "name": "thesis",
+  "date": "2026-11-26",
+  "children": [
+   {
+    "name": "cyberspazio-e-simulazione.pdf",
+    "date": "2026-11-26",
+    "size": 5526612
+   },
+   {
+    "name": "geografie-dell-hauntologia.pdf",
+    "date": "2026-11-26",
+    "size": 4305679
+   },
+   {
+    "name": "realismo-capitalista-e-recessione-culturale.pdf",
+    "date": "2026-11-26",
+    "size": 4745626
+   }
+  ]
  }
 ]

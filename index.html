@@ -181,6 +181,10 @@
   .term .ps{display:inline-block}
   details[open] > summary .ps{transform:rotate(90deg)}           /* aperto: il ">" punta in basso */
   .tree{margin:6px 0 6px .5em;padding-left:1.6em;border-left:1px dotted #555}   /* rientro + linea tratteggiata del livello */
+  /* righe che scaricano un file (non si aprono): numero giallo [1] [2] [3] al posto del ">" */
+  .term-dl{display:block;padding:4px 0;text-decoration:none;color:#111;font-weight:400}
+  .term-dl:hover{color:var(--acc)}
+  .term-dl .ext{color:#444;font-size:.8em}
   .term-empty{margin:6px 0;color:#444;font:400 14px ui-monospace, Menlo, Consolas, monospace}
   /* riquadro del depliant: se l'immagine manca mostra dove metterla */
   .course{display:grid;grid-template-columns:min(320px, 40%) minmax(0, 1fr);gap:24px;align-items:start;margin:8px 0 12px}
@@ -283,7 +287,7 @@
 
     <!-- Ogni <details> è un ramo apribile; dentro, <div class="tree"> = livello successivo (più a destra). -->
     <details class="term-sec" id="course">
-      <summary class="term"><span class="ps">&gt;</span>Sound_Futuro / music production course</summary>
+      <summary class="term"><span class="ps">&gt;</span>Sound_Futuro / pop-up music production course</summary>
       <div class="tree">
 
         <!-- depliant a sinistra, descrizione a destra -->
@@ -293,7 +297,7 @@
               onerror="this.parentNode.classList.add('missing');this.parentNode.textContent='img/theory/course-flyer.jpg'"></figure>
             <!-- descrizione del corso: bozza ripresa dal vecchio press kit, modificala liberamente -->
             <div class="term-text">
-              <p><strong>Sound_Futuro</strong> — pop-up electronic music course, Firenze, Sep 2025 → Feb 2026.</p>
+              <p><strong>Sound_Futuro</strong> — Firenze, Sep 2025 → Feb 2026</p>
               <p>Conceived, developed and artistically directed by Affinità. A modular path of in-person lessons on FL&nbsp;Studio for beginners and advanced students, built as an alternative to learning alone from online tutorials.</p>
               <p class="tagline">Community building, economic accessibility and the promotion of grassroots culture — production taught in a room, together.</p>
               <p>Available in Milan for workshops, one-to-one production lessons and programmes with schools, associations and community spaces.</p>
@@ -303,13 +307,21 @@
     </details>
 
     <details class="term-sec" id="fisher">
-      <summary class="term"><span class="ps">&gt;</span>my inquiry into mark fisher</summary>
-      <div class="tree"><p class="term-empty">coming soon</p></div>
+      <summary class="term"><span class="ps">&gt;</span>My M.A. thesis on Mark Fisher (ITA)</summary>
+      <div class="tree">
+        <!-- tre capitoli in PDF: clic = scarica il file. Metti i PDF in files/thesis/ con questi nomi -->
+        <a class="term term-dl" href="files/thesis/realismo-capitalista-e-recessione-culturale.pdf" download><span class="ps">[1]</span>realismo capitalista e recessione culturale <span class="ext">[pdf]</span></a>
+        <a class="term term-dl" href="files/thesis/geografie-dell-hauntologia.pdf" download><span class="ps">[2]</span>geografie dell'hauntologia <span class="ext">[pdf]</span></a>
+        <a class="term term-dl" href="files/thesis/cyberspazio-e-simulazione.pdf" download><span class="ps">[3]</span>cyberspazio e simulazione <span class="ext">[pdf]</span></a>
+      </div>
     </details>
 
     <details class="term-sec" id="articles">
       <summary class="term"><span class="ps">&gt;</span>articles (wip)<span class="cur" aria-hidden="true"></span></summary>
-      <div class="tree"><p class="term-empty">coming soon</p></div>
+      <div class="tree">
+        <!-- articoli: clic = apre l'articolo in una nuova scheda -->
+        <a class="term term-dl" href="https://substack.com/@cybersaviour/note/c-257810613?utm_source=notes-share-action" target="_blank" rel="noopener"><span class="ps">[1]</span>'It's (only) about the process' - or short-form content as a digital suggestion of affect <span class="ext">[substack]</span></a>
+      </div>
     </details>
 
   </div></div>
