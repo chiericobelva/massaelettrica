@@ -45,6 +45,9 @@
   main{max-width:960px;margin:0 auto;padding:0 1% 2em}
   .area{margin-bottom:2em;background:var(--bar);border-radius:12px;overflow:hidden;scroll-margin-top:12px}
   .area > h2{margin:0;padding:10px;text-align:center;font:400 13px var(--font);letter-spacing:1em;text-transform:uppercase;color:#fff;background:var(--bar);border-bottom:2px solid #1d1d1d}
+  /* email nel titolo FOR BOOKINGS: minuscola, gialla, spaziatura ridotta per leggerla bene */
+  .area > h2 .mail{color:yellow;text-transform:none;text-decoration:none;letter-spacing:.15em}
+  .area > h2 .mail:hover{color:#fff}
   .area > .inner{padding:8px}
   .puffy{background:#000;border-radius:12px;border:1px solid #000;box-shadow:var(--puffy);padding:20px}
 
@@ -63,7 +66,7 @@
   /* ---------- MUSICA ---------- */
   /* griglia di copertine: clic = apre il player sotto la riga */
   /* la sezione Music esce dalla colonna centrale: larga fino a 1280px (o 98% dello schermo) */
-  #music,.ticker,#bookings{--wide:min(1280px, 98vw);margin-left:calc((100% - var(--wide)) / 2);margin-right:calc((100% - var(--wide)) / 2)}
+  #music,.ticker,#bookings,#gallery{--wide:min(1280px, 98vw);margin-left:calc((100% - var(--wide)) / 2);margin-right:calc((100% - var(--wide)) / 2)}
 
   /* ---------- TICKER: scritta a scorrimento sotto Music (stile banner anni '90) ---------- */
   .ticker{margin-top:-1em;margin-bottom:2em;overflow:hidden;background:#000;border:0;padding:8px 0}
@@ -104,6 +107,12 @@
   li.missing .err{display:block}
 
   /* ---------- DRIVE (file browser in iframe) ---------- */
+  /* ---------- GALLERY: collage a righe giustificate, ogni foto con le sue proporzioni ---------- */
+  .collage{display:flex;flex-wrap:wrap;gap:8px}
+  .collage a{display:block;flex:none;overflow:hidden;background:#111}
+  .collage img{width:100%;height:100%;object-fit:cover;display:block;filter:brightness(.75)}   /* luminosità delle foto: 1 = originale, più basso = più scure */
+  .collage .empty{color:var(--dim);font-size:12px;padding:8px}
+
   /* ---------- FOR BOOKINGS: dado che pesca una clip di 1 minuto dai DJ set ---------- */
   .dice{display:grid;grid-template-columns:auto minmax(0,1fr);gap:24px;align-items:center}
   .dice-btn{--dice:140px;width:var(--dice);padding:0;background:#000;border:0;color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;font:700 14px var(--font);letter-spacing:.2em;text-transform:uppercase}
@@ -150,6 +159,7 @@
 
   @media (max-width:600px){
     .area > h2{letter-spacing:.5em}
+    .area > h2 .mail{letter-spacing:.05em}
     .albums{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:16px 12px}
     .row{grid-template-columns:28px 1fr auto;gap:10px}
     .row .d{display:none}
@@ -199,9 +209,9 @@
     </div>
   </div>
 
-  <!-- ================= DRIVE ================= -->
+  <!-- ================= FOR BOOKINGS ================= -->
   <section id="bookings" class="area reveal">
-    <h2>For bookings</h2>
+    <h2>For bookings / get in touch: <span id="bookMail"></span></h2>
     <div class="inner"><div class="puffy">
       <!-- Il dado è img/dice.gif. Le clip le crea build-manifest.py dai set in sets/ (vedi lo script). -->
       <div class="dice idle" id="dice">
@@ -216,18 +226,12 @@
     </div></div>
   </section>
 
-  <!-- ================= PDF ================= -->
-  <section id="pdf" class="area reveal">
-    <h2>PDF</h2>
-    <div class="inner"><div class="puffy">
-      <ul class="plain">
-        <li><span>Bio — EN / IT</span><span class="meta"><a href="files/press/affinita-bio-en-it.pdf" download>PDF ↓</a></span></li>
-        <li class="soon"><span>EPK — one-sheet</span><span class="meta"><a href="files/press/affinita-epk.pdf" download>Soon</a></span></li>
-        <li class="soon"><span>Technical rider (DJ)</span><span class="meta"><a href="files/press/affinita-rider.pdf" download>Soon</a></span></li>
-        <li class="soon"><span>Sound_futuro — education programme</span><span class="meta"><a href="files/press/sound-futuro.pdf" download>Soon</a></span></li>
-        <li class="soon"><span>Press photos — high resolution</span><span class="meta"><a href="files/press/affinita-photos.zip" download>Soon</a></span></li>
-      </ul>
-    </div></div>
+  <!-- ================= GALLERY =================
+       Le foto vanno in img/gallery/ (ordine = ordine alfabetico dei nomi: 01-..., 02-...),
+       poi python build-manifest.py. Il collage si adatta da solo alle proporzioni di ogni foto. -->
+  <section id="gallery" class="area reveal">
+    <h2>Gallery</h2>
+    <div class="inner"><div class="collage" id="collage"></div></div>
   </section>
 
   <!-- ================= PRESS KIT ================= -->
@@ -540,6 +544,59 @@ const clipEnd = () => { if (clipDrag) { clipDrag.classList.remove("drag"); clipD
 diceInfo.addEventListener("pointerup", clipEnd);
 diceInfo.addEventListener("pointercancel", clipEnd);
 
+/* ---------- GALLERY: collage a righe giustificate ----------
+   Le foto restano intere (niente ritagli): ogni riga ha un'unica altezza e riempie tutta la larghezza.
+   Tra tutti i modi di dividere le foto in righe sceglie quello con le altezze più vicine a ROW_H. */
+const collage = document.getElementById("collage");
+let photos = [];
+const ROW_H = w => Math.max(130, Math.min(340, w / 3.6));   // altezza ideale di una riga (più bassa = foto più piccole)
+
+function layoutCollage(){
+  const W = collage.clientWidth, gap = 8, n = photos.length;
+  if (!n || !W) return;
+  const r = photos.map(p => p.w / p.h), target = ROW_H(W);
+  const rowH = row => (W - gap * (row.length - 1)) / row.reduce((a, i) => a + r[i], 0);
+  let rows;
+  if (n <= 14) {          // poche foto: provo tutte le divisioni possibili in righe
+    let best = Infinity;
+    for (let mask = 0; mask < 1 << (n - 1); mask++) {
+      const rs = []; let cur = [];
+      for (let i = 0; i < n; i++) { cur.push(i); if (i === n - 1 || (mask >> i) & 1) { rs.push(cur); cur = []; } }
+      const cost = rs.reduce((a, row) => a + Math.log(rowH(row) / target) ** 2, 0);
+      if (cost < best) { best = cost; rows = rs; }
+    }
+  } else {                // tante foto: riempio ogni riga finché non scende sotto l'altezza ideale
+    rows = []; let cur = [];
+    for (let i = 0; i < n; i++) { cur.push(i); if (rowH(cur) <= target || i === n - 1) { rows.push(cur); cur = []; } }
+  }
+  for (const row of rows) {
+    const h = rowH(row);
+    let used = 0;
+    row.forEach((i, k) => {
+      const a = collage.children[i];
+      // l'ultima foto della riga prende i pixel rimasti, così la riga non va mai a capo per arrotondamento
+      const w = k === row.length - 1 ? W - gap * (row.length - 1) - used : Math.floor(r[i] * h);
+      used += w;
+      a.style.width = w + "px";
+      a.style.height = Math.round(h) + "px";
+    });
+  }
+}
+
+fetch("img/gallery/gallery.json", {cache: "no-cache"})
+  .then(r => { if (!r.ok) throw 0; return r.json(); })
+  .then(list => {
+    photos = list;
+    if (!photos.length) throw 0;
+    collage.innerHTML = photos.map(p => {
+      const src = enc("img/gallery/" + p.file);
+      return `<a href="${src}" target="_blank" rel="noopener"><img src="${src}" alt="Affinità" loading="lazy" width="${p.w}" height="${p.h}"></a>`;
+    }).join("");
+    layoutCollage();
+    new ResizeObserver(layoutCollage).observe(collage);
+  })
+  .catch(() => { collage.innerHTML = '<p class="empty">add photos to img/gallery/ and run python build-manifest.py</p>'; });
+
 /* ---------- le sezioni compaiono mentre scorri ---------- */
 if ("IntersectionObserver" in window) {
   const io = new IntersectionObserver(es => es.forEach(e => {
@@ -554,6 +611,8 @@ if ("IntersectionObserver" in window) {
 const u = ["booking"], d = ["massaelettrica", "net"];
 const addr = u.join("") + "@" + d.join(".");
 document.getElementById("mail").innerHTML = `<a href="mailto:${addr}">${addr}</a>`;
+const bm = ["the1", "affinita"].join("") + "@" + ["aol", "com"].join(".");
+document.getElementById("bookMail").innerHTML = `<a class="mail" href="mailto:${bm}">${bm}</a>`;
 </script>
 </body>
 </html>
