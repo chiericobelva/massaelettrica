@@ -644,11 +644,11 @@ const stripNext = document.getElementById("stripNext");
 // foto che non si aprono a grandezza piena e non si salvano col clic destro / tenendo premuto
 const NO_DOWNLOAD = ["02-annigoni.JPG", "06-emerson.jpg"];
 // dove tenere il centro del ritaglio per singole foto (le altre: al centro). Es. "left center" = si vede tutto il bordo sinistro
-const FOCUS = { "01_cdp2.jpeg": "left center" };
+const FOCUS = { "01_cdp2.jpeg": "left center", "03-ep.JPG": "center 75%" };
 const phone = matchMedia("(max-width:600px)");
-const perPage = () => phone.matches ? 1 : 3;     // foto visibili insieme: 3 su computer, 1 su telefono
+const perPage = () => phone.matches ? 1 : 3;     // foto visibili insieme: 3 su computer (se order.txt non usa "---"), 1 su telefono
 const GAP = 8;
-let photos = [], pages = [];
+let photos = [], pages = [], explicitPages = false;   // explicitPages: pagine decise in order.txt con "---"
 
 function photoHTML(p){
   const src = enc("img/gallery/" + p.file);
@@ -669,7 +669,8 @@ function layoutGallery(){
   const ratio = p => p.w / p.h;
   const sum = pg => pg.reduce((a, p) => a + ratio(p), 0);
   const natural = pg => (W - GAP * (pg.length - 1)) / sum(pg);           // altezza a cui il gruppo riempie la riga senza ritagli
-  const full = pages.filter(pg => pg.length === k);
+  const complete = pg => explicitPages || pg.length === k;               // pagine da order.txt: riempiono sempre la fila
+  const full = pages.filter(complete);
   let H = (full.length ? full : pages).reduce((a, pg) => a + natural(pg), 0) / (full.length || pages.length);
   H = Math.round(Math.min(H, innerHeight * 0.75));                       // mai più alta di 3/4 dello schermo
   // telefono (1 foto alla volta): riquadro uguale per tutte e foto intera dentro (niente ritagli forti sulle verticali)
@@ -678,7 +679,7 @@ function layoutGallery(){
   [...strip.children].forEach((el, i) => {
     const pg = pages[i];
     el.style.width = W + "px";
-    const fill = pg.length === k;                                        // un gruppo incompleto non viene stirato
+    const fill = complete(pg);                                           // un gruppo incompleto (senza "---") non viene stirato
     const avail = W - GAP * (pg.length - 1);
     let used = 0;
     [...el.children].forEach((a, j) => {
@@ -729,7 +730,13 @@ function startGifs(){
 function renderGallery(){
   const k = perPage();
   pages = [];
-  for (let i = 0; i < photos.length; i += k) pages.push(photos.slice(i, i + k));
+  explicitPages = k > 1 && photos.some(p => p.page != null);
+  if (explicitPages) {          // computer: pagine come in order.txt
+    for (const p of photos) (pages[p.page] ??= []).push(p);
+    pages = pages.filter(Boolean);
+  } else {                      // telefono (1 alla volta) o nessuna pagina indicata: gruppi da k
+    for (let i = 0; i < photos.length; i += k) pages.push(photos.slice(i, i + k));
+  }
   strip.innerHTML = pages.map(pg => `<div class="gpage">${pg.map(photoHTML).join("")}</div>`).join("");
   strip.scrollLeft = 0;
   layoutGallery();

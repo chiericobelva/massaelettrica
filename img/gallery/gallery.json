@@ -2,47 +2,50 @@
  {
   "file": "01_cdp2.jpeg",
   "w": 3168,
-  "h": 4752
- },
- {
-  "file": "02-annigoni.JPG",
-  "w": 1280,
-  "h": 853
+  "h": 4752,
+  "page": 0
  },
  {
   "file": "03-ep.JPG",
   "w": 3736,
-  "h": 2491
+  "h": 2491,
+  "page": 0
+ },
+ {
+  "file": "07wish.jpg",
+  "w": 3024,
+  "h": 4032,
+  "page": 0
  },
  {
   "file": "annigoni-loop.mp4",
   "w": 848,
   "h": 464,
-  "video": true
+  "video": true,
+  "page": 1
  },
  {
-  "file": "07wish.jpg",
-  "w": 3024,
-  "h": 4032
- },
- {
-  "file": "08wish.jpg",
-  "w": 3024,
-  "h": 4032
+  "file": "02-annigoni.JPG",
+  "w": 1280,
+  "h": 853,
+  "page": 1
  },
  {
   "file": "04-sp0.jpg",
   "w": 1080,
-  "h": 720
+  "h": 720,
+  "page": 2
  },
  {
   "file": "05-press.jpg",
   "w": 3219,
-  "h": 4024
+  "h": 4024,
+  "page": 2
  },
  {
   "file": "06-emerson.jpg",
   "w": 2514,
-  "h": 2010
+  "h": 2010,
+  "page": 2
  }
 ]
