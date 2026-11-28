@@ -13,7 +13,6 @@
 <meta name="twitter:card" content="summary_large_image">
 <style>
   :root{
-    --paper:#ababab;   /* grigio stile Ableton della parte THEORY (prima era bianco) */
     --bg:#000; --fg:#f1f1f1; --dim:#8a8a8a; --line:#313131; --acc:yellow;
     --font: Helvetica, "Helvetica Neue", Arial, sans-serif;   /* come newmodels.io */
     --bar: linear-gradient(0deg,#4d4d4d 0%,#0e0d00 66%,#0a0a0a 91%,#616161 100%);
@@ -169,60 +168,36 @@
   ul.plain .soon{color:var(--dim)}
   ul.plain .soon a{pointer-events:none;color:var(--dim);text-decoration:none}
 
-  /* ---------- THEORY ----------
-     La fascia è nera nella metà alta e bianca nella metà bassa: il taglio cade esattamente
-     a metà altezza della scritta. La scritta è sempre bianca, con un contorno nero
-     (sul nero non si vede, sul bianco la disegna). */
-  /* font Unbounded (gratuito, licenza in fonts/OFL-unbounded.txt), solo per la scritta THEORY */
-  @font-face{font-family:"Unbounded";src:url("fonts/unbounded.woff2") format("woff2");font-weight:800;font-display:swap}
-  .theory-band{--fs:clamp(56px, 13vw, 200px);   /* grandezza della scritta */
-    --sy:2.6;                                     /* allungamento verticale */
-    display:grid;place-items:center;height:calc(var(--fs) * .75 * var(--sy) + 2 * var(--fs) * .4);   /* .75 = altezza maiuscole di Unbounded */
-    background:linear-gradient(#000 50%, var(--paper) 50%);overflow:hidden;position:relative}
-  /* barra a rilievo sul taglio nero/grigio (stessa sfumatura delle barre dei titoli), dietro la scritta */
-  .theory-band::before{content:"";position:absolute;left:0;right:0;top:50%;height:18px;transform:translateY(-50%);   /* 18px = spessore */
-    background:var(--bar);border-top:1px solid #6a6a6a;border-bottom:1px solid #000;box-shadow:0 3px 6px rgba(0,0,0,.45)}
-  /* contorno nero: applicato al contenitore, dopo l'allungamento, così ha lo stesso spessore su tutti i lati */
-  /* THEORY solo contorno: due copie sovrapposte. Il contorno è calcolato dopo l'allungamento
-     (filtri #outline-white / #outline-black in fondo alla pagina), quindi ha lo stesso spessore su tutti i lati.
-     Copia "top": contorno bianco, solo metà alta. Copia "bot": contorno nero + alone, solo metà bassa. */
-  .theory-word{grid-area:1/1;position:relative;z-index:1}
-  .theory-word.top{filter:url(#outline-white);clip-path:inset(-200vh -200vw 50% -200vw)}
-  .theory-word.bot{filter:url(#outline-black) drop-shadow(0 0 14px rgba(0,0,0,.45));clip-path:inset(50% -200vw -200vh -200vw)}   /* alone: 14px = ampiezza, .45 = intensità */
-  .theory-band .tw{display:block;margin:0;color:#fff;font:800 var(--fs)/1 "Unbounded", var(--font);letter-spacing:-.02em;text-transform:uppercase;   /* letter-spacing: più negativo = lettere più vicine */
-    text-box:trim-both cap alphabetic;   /* la riga del testo è alta esattamente quanto le maiuscole: centratura precisa */
-    transform:scaleY(var(--sy))}
-  /* da qui in giù la pagina è bianca */
-  .theory-body{background:var(--paper);color:#111;min-height:40vh;padding:56px 1% 64px}
+  /* ---------- THEORY: articoli, tesi, corso (sfondo nero come il resto, testi chiari) ---------- */
+  .theory-body{color:var(--fg);min-height:40vh;padding:56px 1% 64px}
   .theory-inner{max-width:960px;margin:0 auto}
   /* titoli in stile terminale: "> titolo" in monospace */
   .term-sec{margin-bottom:28px}
   .term-sec:last-child{margin-bottom:0}
-  .term{margin:0;font:700 clamp(18px, 2.4vw, 28px)/1.2 ui-monospace, Menlo, Consolas, "Courier New", monospace;letter-spacing:0;color:#111}
-  .term .ps{color:var(--acc);margin-right:.6em}   /* il ">" giallo */
-  .term .cur{display:inline-block;width:.6em;height:1em;margin-left:.2em;background:#111;vertical-align:-.15em}   /* cursore a blocco, fermo */
+  .term{margin:0;font:700 clamp(18px, 2.4vw, 28px)/1.2 ui-monospace, Menlo, Consolas, "Courier New", monospace;letter-spacing:0;color:var(--fg)}
+  .term .ps{margin-right:.6em}                     /* il ">" (stesso colore del testo) */
+  .term .cur{display:inline-block;width:.6em;height:1em;margin-left:.2em;vertical-align:-.15em;background:currentColor}   /* cursore a blocco, fermo */
   /* albero apribile (come Esplora risorse): clic sulla riga "> ..." apre/chiude; ogni livello va più a destra */
   .term-sec summary{list-style:none;cursor:pointer;padding:4px 0}
   .term-sec summary::-webkit-details-marker{display:none}
-  .term-sec summary:hover{color:var(--acc)}
+  .term-sec summary:hover{text-decoration:underline;text-decoration-color:var(--dim);text-underline-offset:4px}
   .term .ps{display:inline-block}
   details[open] > summary .ps{transform:rotate(90deg)}           /* aperto: il ">" punta in basso */
   .tree{margin:6px 0 6px .5em;padding-left:1.6em;border-left:1px dotted #555}   /* rientro + linea tratteggiata del livello */
-  /* righe che scaricano un file (non si aprono): numero giallo [1] [2] [3] al posto del ">" */
-  .term-dl{display:block;padding:4px 0;text-decoration:none;color:#111;font-weight:400}
-  .term-dl:hover{color:var(--acc)}
-  .term-dl .ext{color:#444;font-size:.8em}
-  .term-empty{margin:6px 0;color:#444;font:400 14px ui-monospace, Menlo, Consolas, monospace}
+  /* righe che scaricano o aprono un link (non si aprono come tendina): [1] [2] [3] al posto del ">" */
+  .term-dl{display:block;padding:4px 0;text-decoration:none;color:var(--fg);font-weight:400}
+  .term-dl:hover{color:var(--fg);text-decoration:underline;text-decoration-color:var(--dim);text-underline-offset:4px}
+  .term-dl .ext{color:var(--dim);font-size:.8em}
+  .term-empty{margin:6px 0;color:var(--dim);font:400 14px ui-monospace, Menlo, Consolas, monospace}
   /* riquadro del depliant: se l'immagine manca mostra dove metterla */
   .course{display:grid;grid-template-columns:min(320px, 40%) minmax(0, 1fr);gap:24px;align-items:start;margin:8px 0 12px}
   .flyer{width:100%;margin:0}
   .flyer img{width:100%;height:auto;display:block}
-  .flyer.missing{aspect-ratio:1/1.414;display:grid;place-items:center;border:1px dashed #555;color:#444;font:400 12px ui-monospace, Menlo, Consolas, monospace;text-align:center;padding:12px}
+  .flyer.missing{aspect-ratio:1/1.414;display:grid;place-items:center;border:1px dashed #555;color:var(--dim);font:400 12px ui-monospace, Menlo, Consolas, monospace;text-align:center;padding:12px}
   /* box di testo della descrizione */
-  .term-text{max-width:640px;margin:0;padding:16px 18px;border:1px solid #111;font:400 15px/1.5 var(--font)}
+  .term-text{max-width:640px;margin:0;padding:16px 18px;border:1px solid var(--fg);font:400 15px/1.5 var(--font)}
   .term-text p:last-child{margin-bottom:0}
   .term-text .tagline{font-style:italic}
-  #theory + footer{background:var(--paper);color:#444;margin:0;padding:2em 0 3em}
 
   footer{text-align:center;color:var(--dim);font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:0 0 3em}
 
@@ -314,12 +289,8 @@
 </main>
 
 <!-- ================= THEORY =================
-     Da qui la pagina diventa bianca: articoli, tesi, corso di produzione. -->
+     Articoli, tesi, corso di produzione. -->
 <section id="theory">
-  <div class="theory-band">
-    <div class="theory-word top" aria-hidden="true"><span class="tw">Theory</span></div>
-    <div class="theory-word bot"><h2 class="tw">Theory</h2></div>
-  </div>
   <div class="theory-body"><div class="theory-inner">
 
     <!-- Ogni <details> è un ramo apribile; dentro, <div class="tree"> = livello successivo (più a destra). -->
@@ -367,23 +338,6 @@
 <footer>© 2026 massa elettrica</footer>
 
 <audio id="audio" preload="none"></audio>
-
-<!-- filtri per THEORY solo contorno: radius = spessore della linea in px -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
-  <filter id="outline-white" x="-10%" y="-150%" width="120%" height="400%">
-    <feMorphology in="SourceAlpha" operator="dilate" radius="1.5" result="fat"/>
-    <feComposite in="fat" in2="SourceAlpha" operator="out" result="ring"/>
-    <feFlood flood-color="#fff"/>
-    <feComposite in2="ring" operator="in"/>
-  </filter>
-  <filter id="outline-black" x="-10%" y="-150%" width="120%" height="400%">
-    <feMorphology in="SourceAlpha" operator="dilate" radius="1.5" result="fat"/>
-    <feComposite in="fat" in2="SourceAlpha" operator="out" result="ring"/>
-    <feFlood flood-color="#000"/>
-    <feComposite in2="ring" operator="in"/>
-  </filter>
-</svg>
-
 <script>
 /* ---------- catalogo: generato da build-manifest.py in audio/releases.json ----------
    Non modificare a mano: metti mp3 + cover.jpg in audio/<album>/ e lancia lo script. */
