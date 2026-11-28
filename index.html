@@ -30,17 +30,27 @@
   /* ---------- HERO: logo piccolo con alone + contorno grande sovrapposto ---------- */
   .hero{
     --logo-w: min(55vw, 520px);   /* larghezza del logo bianco con alone */
+    --outline-base: min(55vw, 520px);   /* base del contorno, separata dal logo bianco: il contorno non cambia se cambi il logo */
     --outline-scale: 2.2;         /* quante volte più grande è il contorno */
     --stretch-x: .6;              /* deformazione stile Revenge: più stretto... */
     --stretch-y: 2.4;             /* ...e molto più alto */
-    --logo-sx: .85;               /* stessa deformazione sul logo con alone, più leggera */
-    --logo-sy: 1.7;
-    height:100vh;height:100svh;display:grid;place-items:center;overflow:hidden}
+    --logo-sx: .9;                /* stessa deformazione sul logo con alone, più leggera (prima: .85) */
+    --logo-sy: 2.2;               /* (prima: 1.7) */
+    height:100vh;height:100svh;display:grid;place-items:center;overflow:hidden;
+    grid-template:minmax(0,1fr) / minmax(0,1fr)}   /* la fila è sempre alta quanto lo schermo: il logo resta al centro anche se è più grande */
   .hero h1,.hero .outline{grid-area:1/1}
+  .hero{position:relative}
+  /* tutta l'area del logo è cliccabile: porta giù alla parte con gif e bio */
+  .hero-link{position:absolute;inset:0;z-index:2;cursor:pointer}
   .hero h1{margin:0;line-height:0}
   .hero h1 img{width:calc(var(--logo-w) * var(--logo-sx));height:calc(var(--logo-w) * .6876 * var(--logo-sy));display:block}
   /* contorno: img/logo-outline.svg (spessore della linea: stroke-width dentro il file) */
-  .hero .outline{--ow:calc(var(--logo-w) * .873 * var(--outline-scale));width:calc(var(--ow) * var(--stretch-x));height:calc(var(--ow) * .2909 * var(--stretch-y));max-width:none;display:block;position:relative;z-index:1;pointer-events:none}
+  .hero .outline{--ow:calc(var(--outline-base) * .873 * var(--outline-scale));width:calc(var(--ow) * var(--stretch-x));height:calc(var(--ow) * .2909 * var(--stretch-y));max-width:none;display:block;position:relative;z-index:1;pointer-events:none}
+  /* vicino al logo bianco il contorno si spegne quasi del tutto (meno groviglio di linee):
+     ovale grande quanto le lettere bianche + l'alone, che segue --logo-sx / --logo-sy.
+     .12 = luminosità minima delle linee lì dentro; 70% / 135% = dove inizia e finisce la sfumatura */
+  .hero .outline{--near:radial-gradient(calc(var(--logo-sx) * 41%) calc(var(--logo-sy) * 10%) at 50% 50%, rgba(0,0,0,.12) 0% 70%, #000 135%);
+    -webkit-mask-image:var(--near);mask-image:var(--near)}
 
   /* ---------- CONTENUTO (stile thirdworlds) ---------- */
   main{max-width:960px;margin:0 auto;padding:0 1% 2em}
@@ -60,6 +70,8 @@
   .intro{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:center;margin-bottom:2em;padding:16px 0;background:#000;color:var(--acc)}
   .intro figure{margin:0;aspect-ratio:1;background:#000;overflow:hidden}
   .intro figure img{width:100%;height:100%;object-fit:cover;display:block}
+  /* clic sulla gif = pausa sul fotogramma che si vede; altro clic = riparte da lì */
+  .intro figure{cursor:pointer}
   .intro figure.missing{display:grid;place-items:center;border:1px dashed var(--line);color:var(--dim);font-size:12px}
   .intro .text{font:400 13px/1.4 var(--font)}   /* dimensione / interlinea del testo */
   .intro .text p:last-child{margin-bottom:0}
@@ -238,6 +250,7 @@
 <header class="hero" id="top">
   <h1><img src="img/logo.png" alt="Affinità"></h1>
   <img class="outline" src="img/logo-outline.svg" alt="" aria-hidden="true">
+  <a class="hero-link" href="#intro" aria-label="Scroll down to the bio"></a>
 </header>
 
 <main>
@@ -246,7 +259,7 @@
        GIF: metti il file in img/intro.gif (quadrata; se non è quadrata viene ritagliata al centro).
        Testo: scrivilo nei <p> qui sotto. -->
   <section id="intro" class="intro reveal">
-    <figure><img src="img/intro.gif" alt="" onerror="this.parentNode.classList.add('missing');this.parentNode.textContent='img/intro.gif'"></figure>
+    <figure id="introGif" tabindex="0" role="button" aria-pressed="false" aria-label="Pause / play animation"><img src="img/intro.gif" alt="" onerror="this.parentNode.classList.add('missing');this.parentNode.textContent='img/intro.gif'"></figure>
     <div class="text">
       <p>Affinità (2002) is a producer, selector and philosophy postgraduate based in Milan whose assemblies operate between electronic music and hauntology. Profoundly dedicated to the promotion of underground movements, since 2022 Affinità has been committed to the unaffiliated Wish network, the collective epicenter of soundsystem crews and subversive social efforts in the metropolitan Florence area. At the decks, his hybrid sets are curated with an improvisational edge, blending bass-heavy genres (Dubstep, Halfstep DnB) with lush and melodic overtones (Ambient, Soundtracks). Affinità was soon recognized for his signature sound by the wider urban scene, and now hosts his own radio show “Ipogeo” on FANGO Radio . He’s nonetheless most frequently off the commercial radar, and found playing alongside acclaimed sound crews, collectives and performers. His production is a distinctive mutation of the Footwork and Breakbeat genres, generally pulsating at 160 bpm, though infused with complex melodic textures, organic drums and the intelligent use of repetitive vocal lines: sampling sits at the heart of his production process, mostly relying on manual chopping and sequencing, layering sounds from old videogames, motion picture soundtracks and dusting libraries from obsolete DAW’s and VST’s. His commercial debut was set off independently by the 4-track EP Massa Elettrica released in early 2025, framing the affect for his subsequent single publications.</p>
     </div>
@@ -755,6 +768,43 @@ if ("IntersectionObserver" in window) {
 } else {
   document.querySelectorAll(".reveal").forEach(el => el.classList.add("in"));
 }
+
+/* ---------- clic sul logo: scorre morbido fino alla bio (senza aggiungere #intro all'indirizzo) ---------- */
+document.querySelector(".hero-link").addEventListener("click", e => {
+  e.preventDefault();
+  const smooth = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const gap = Math.max(40, innerHeight * 0.08);   // margine nero lasciato sopra la gif (8% dello schermo, minimo 40px)
+  const top = document.getElementById("intro").getBoundingClientRect().top + scrollY - gap;
+  scrollTo({top, behavior: smooth ? "smooth" : "auto"});
+});
+
+/* ---------- gif della bio: clic (o Invio/spazio) = pausa / riparte ----------
+   I 4 fotogrammi della gif sono in img/intro-frames/: la pagina li alterna con gli stessi tempi della gif,
+   così la pausa si ferma esattamente sul fotogramma che si vede. (Senza JavaScript resta la gif normale.) */
+const INTRO_FRAMES = [1, 2, 3, 4].map(i => `img/intro-frames/frame-${i}.jpg`);
+const INTRO_DELAY = [1000, 1000, 1000, 1000];   // durata di ogni fotogramma in ms (presa dalla gif)
+const introGif = document.getElementById("introGif");
+const introImg = introGif.querySelector("img");
+let introI = 0, introTimer = null, introPaused = false, introReady = false;
+function introNext(){
+  clearTimeout(introTimer);
+  introTimer = setTimeout(() => {
+    introI = (introI + 1) % INTRO_FRAMES.length;
+    introImg.src = INTRO_FRAMES[introI];
+    introNext();
+  }, INTRO_DELAY[introI]);
+}
+// carico prima tutti i fotogrammi, poi sostituisco la gif con l'alternanza dei fotogrammi
+Promise.all(INTRO_FRAMES.map(src => new Promise(ok => { const im = new Image(); im.onload = im.onerror = ok; im.src = src; })))
+  .then(() => { introReady = true; introImg.src = INTRO_FRAMES[0]; if (!introPaused) introNext(); });
+function toggleIntroGif(){
+  if (!introReady) return;
+  introPaused = !introPaused;
+  introGif.setAttribute("aria-pressed", introPaused);
+  introPaused ? clearTimeout(introTimer) : introNext();
+}
+introGif.addEventListener("click", toggleIntroGif);
+introGif.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleIntroGif(); } });
 
 /* ---------- anti-spam email (non compare in chiaro nell'HTML) ---------- */
 const bm = ["the1", "affinita"].join("") + "@" + ["aol", "com"].join(".");
